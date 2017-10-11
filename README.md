@@ -56,7 +56,12 @@ ansible-galaxy install -r casl-requirements.yml -p roles
 * A [Key-pair created or imported in OpenStack](https://github.com/naturalis/openstack-docs/wiki/Howto:-Creating-and-using-OpenStack-SSH-keypairs-on-Linux-and-OSX)
 * Copy `~/src/casl-ansible/inventory/sample.casl.example.com.d/inventory/clouds.yaml` to `~/.config/openstack/clouds.yaml`
 
-Cool! Now you're ready to provision OpenShift clusters on OpenStack
+#### AWS specific requirements
+* Requirements to use the AWS provision can be found in the Role's [README](roles/deploy-aws-infra/README.md)
+* A [Key-pair created or imported in AWS](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair)
+
+
+Cool! Now you're ready to provision OpenShift clusters on OpenStack and AWS
 
 ### Provision a Cluster
 
@@ -90,6 +95,10 @@ docker exec -it <container-name> bash
 ansible-playbook -i /root/code/casl-ansible/inventory/sample.casl.example.com.d/inventory /root/code/casl-ansible/playbooks/openshift/end-to-end.yml -e openstack_ssh_public_key=<your_ssh_key_name>
 ```
 
+```
+ansible-playbook -i /root/code/casl-ansible/inventory/ample.aws.example.com.d/inventory /root/code/casl-ansible/playbooks/openshift/end-to-end.yml --private-key==<your_ssh_private_key_file>
+```
+
 The `openstack_ssh_public_key` variable at the end should specify the name of your OpenStack keypair (`openstack keypair list`).
 
 Done! Wait till the provisioning completes and you should have an operational cluster. If something fails along the way, either update your inventory and re-run the above `end-to-end.yml` playbook, or it may be better to [delete the cluster](https://github.com/redhat-cop/casl-ansible#deleting-a-cluster) and re-start.
@@ -112,6 +121,16 @@ and then re-running the playbook.
 ```
 ansible-playbook -i /root/code/casl-ansible/inventory/sample.casl.example.com.d/inventory /root/code/casl-ansible/playbooks/openshift/end-to-end.yml
 ```
+### Start/Stop  a Cluster
+
+In the case we are using a Cloud Provider (AWS) to run the Cluster, it may be interesting to stop/start the instances where the Cluster is running in order to reduce costs. To do so, two playbooks are available, `start-cluster.yml` and `stop-cluster.yml`, re-using the same inventory:
+
+```
+ansible-playbook -i /root/code/casl-ansible/inventory/ample.aws.example.com.d/inventory /root/code/casl-ansible/playbooks/openshift/start-cluster.yml --private-key==<your_ssh_private_key_file>
+```
+```
+ansible-playbook -i /root/code/casl-ansible/inventory/ample.aws.example.com.d/inventory /root/code/casl-ansible/playbooks/openshift/stop-cluster.yml --private-key==<your_ssh_private_key_file>
+```
 
 ### Deleting a Cluster
 
@@ -120,3 +139,5 @@ A cluster can be decommissioned/deleted by re-using the same inventory with the 
 ```
 ansible-playbook -i /root/code/casl-ansible/inventory/sample.casl.example.com.d/inventory /root/code/casl-ansible/playbooks/openshift/delete-cluster.yml
 ```
+
+> **AWS Specific:** While deleting an AWS Cluster, the **delete_vpc** variable must be provided in order to remove or not the VPC the Cluster belongs to. Check role [README](roles/manage-aws-infra/README.md) for further information.

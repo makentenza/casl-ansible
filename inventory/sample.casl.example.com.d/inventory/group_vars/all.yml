@@ -24,7 +24,7 @@ public_dns_domain: "casl.example.com"
 public_dns_nameservers:
 - 192.168.1.1
 
-# Roll-your-own DNS 
+# Roll-your-own DNS
 openstack_num_dns: 0
 
 external_nsupdate_keys:
@@ -65,15 +65,12 @@ openshift_cluster_content:
   content:
   - name: "my-cakephp-spaces"
     file: "{{ inventory_dir }}/../files/cakephp/ProjectRequest/my-cakephp-spaces.yml"
-    file_action: create
   - name: "projectrequest-test1"
     template: "{{ inventory_dir }}/../files/ProjectRequest/template.yml"
     params: "{{ inventory_dir }}/../files/ProjectRequest/test1.param"
-    template_action: create
   - name: "projectrequest-test2"
     template: "{{ inventory_dir }}/../files/ProjectRequest/template.yml"
     params: "{{ inventory_dir }}/../files/ProjectRequest/test2.param"
-    template_action: create
 - object: namespace
   content:
   - name: "cakephp-development"

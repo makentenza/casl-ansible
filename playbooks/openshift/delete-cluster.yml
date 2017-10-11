@@ -1,5 +1,9 @@
 ---
 
 - include: delete-openstack.yml
-  when: 
+  when:
   - hosting_infrastructure == 'openstack'
+
+- include: delete-aws.yml
+  when:
+  - hosting_infrastructure == 'aws'

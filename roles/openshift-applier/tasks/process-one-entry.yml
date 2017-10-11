@@ -2,65 +2,50 @@
 
 - name: "Set default values"
   set_fact:
+    process_f: ''
     target_namespace: ''
-    file: "{{ item.file | default('') }}"
-    file_f_option: ''
-    file_action: "{{ item.file_action | default(omit) }}"
-    template: "{{ item.template | default('') }}"
-    template_f_option: ''
-    template_action: "{{ item.template_action | default(omit) }}"
-    params: "{{ item.params | default('') }}"
-    process_local: ''
+    file: "{{ item.template }}"
 
-- name: "Fail if template but no params is specified"
-  fail:
-    msg: "Template specified, but no params file supplied"
-  when:
-  - template|trim != ''
-  - params|trim == ''
-
-- name: "Check if params file exists (if applicable)"
+- name: "Check if params file exists"
   stat:
-    path: "{{ tmp_inv_dir }}{{ params }}"
+    path: "{{ tmp_inv_dir }}{{ item.params }}"
   ignore_errors: yes
   register: params_result
-  when:
-  - params|trim != ''
 
-- name: "Fail if params file doesn't exist (if applicable)"
+- name: "Fail if params file doesn't exist"
   fail:
-    msg: "{{ params }} - params file doesn't exist."
+    msg: "{{ item.params }} - params file doesn't exist."
   when:
-  - params|trim != ''
   - params_result.stat.exists == False
 
-- name: "Determine location for the 'file' (if applicable)"
-  vars:
-    path: "{{ file }}"
-  include: check-file-location.yml
-  when:
-  - file|trim != ''
+- name: "Check if the passed in template is a remote location (URL)"
+  uri:
+    url: "{{ item.template }}"
+  register: url_result
+  failed_when:
+  - '"unknown url" not in url_result.msg and url_result.url is not defined'
 
-- name: "Set 'file' values (if applicable)"
+- name: "Check if passed in template is a local file (if not remote location)"
+  stat:
+    path: "{{ tmp_inv_dir }}{{ item.template }}"
+  ignore_errors: yes
+  register: file_result
+  when:
+  - '"unknown url" in url_result.msg or (url_result.status is defined and url_result.status != 200)'
+
+- name: "Set the '-f' option if the template is either a remote or local file"
   set_fact:
-    file: "{{ file_path }}"
-    file_f_option: "{{ option_f }}" 
+    process_f: ' -f '
   when:
-  - file|trim != ''
+  - '"unknown url" not in url_result.msg or file_result.stat.exists'
 
-- name: "Determine location for the 'template' (if applicable)"
-  vars:
-    path: "{{ template }}"
-  include: check-file-location.yml
-  when:
-  - template|trim != ''
-
-- name: "Set 'template' values (if applicable)"
+- name: "Pre-pend the temporary dir if the file exists at the local location"
   set_fact:
-    template: "{{ file_path }}"
-    template_f_option: "{{ option_f }}" 
+    file: "{{ tmp_inv_dir }}{{ item.template }}"
   when:
-  - template|trim != ''
+  - file_result is defined
+  - file_result.stat is defined
+  - file_result.stat.exists
 
 - name: "Set the target namespace option if supplied"
   set_fact:
@@ -69,28 +54,15 @@
   - item.namespace is defined
   - item.namespace|trim != ''
 
-- name: "Create OpenShift objects based on static files for '{{ entry.object }}'"
-  command: >
-    oc {{ file_action }} {{ target_namespace }} -f {{ file }}
-  register: command_result
-  failed_when:
-  - command_result.rc != 0
-  - "'AlreadyExists' not in command_result.stderr"
-  when:
-  - file|trim != ''
-
-- name: "Create OpenShift objects based on templates with params for '{{ entry.object }}'"
+- name: "Create OpenShift objects for '{{ entry.object }}' with params"
   shell: >
     oc process \
-      {{ process_local }} \
-      {{ template_f_option }} {{ template }} \
+      {{ process_local | default('') }} \
+      {{ process_f }} {{ file }} \
       {{ target_namespace }} \
       --param-file={{ tmp_inv_dir }}{{ item.params }} | \
-    oc {{ template_action }} {{ target_namespace }} -f -
+    oc {{ action | default('apply') }} {{ target_namespace }} -f -
   register: command_result
   failed_when:
   - command_result.rc != 0
   - "'AlreadyExists' not in command_result.stderr"
-  when:
-  - template|trim != ''
-  - params|trim != ''

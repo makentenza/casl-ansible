@@ -22,7 +22,7 @@ openstack_num_infra: 1
 env_id: "s1-ha"
 
 public_dns_domain: "casl.example.com"
-public_dns_nameservers: 
+public_dns_nameservers:
 - 192.168.1.1
 
 docker_volume_size: "10"
@@ -47,4 +47,3 @@ rhsm_repos:
 #rhsm_password: ''
 # leave commented out if you want to `--auto-attach` a pool
 #rhsm_pool: ''
-

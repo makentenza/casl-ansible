@@ -1,0 +1,56 @@
+# 'hosting_infrastructure' is used to drive the correct behavior based
+# on the hosting infrastructure, cloud provider, etc. Valid values are:
+# - 'openstack'
+# - 'aws' (Coming Soon)
+# - 'azure' (Coming Soon)
+hosting_infrastructure: aws
+
+# AWS Provisioning Variables
+# use the "-e" option to set "aws_ssh_public_key"
+aws_image_name: <ec2 AMI>
+aws_num_masters: 1
+aws_num_nodes: 3
+aws_num_infra: 1
+aws_access_key: <Access key ID>
+aws_secret_key: <Secret access key>
+aws_region: <AWS Region>
+aws_key_name: <Key pair name>
+aws_subnet: <Subnet ID>
+# If aws_create_vpc is 'true', aws_subnet variable will be ignored
+aws_create_vpc: <true|false>
+# These are the security groups created when aws_create_vpc is 'true'. Modify accordingly to your environment in case using existing VPC and SGs
+aws_master_sgroups: ['labs-ssh', 'labs-ocp-master', 'labs-ocp-node']
+aws_infra_sgroups: ['labs-ssh', 'labs-ocp-infra', 'labs-ocp-node']
+aws_node_sgroups: ['labs-ssh', 'labs-ocp-node']
+
+# Cluster variables
+env_id: "sample"
+public_dns_domain: "sre.tests.com"
+public_dns_nameservers:
+- 8.8.8.8
+ha_mode: false
+
+
+# Dockr configuration variables
+#docker_volume_size: "5"
+docker_storage_block_device: "/dev/xvdb"
+
+# Subscription Management Details
+rhsm_register: True
+rhsm_repos:
+ - "rhel-7-server-rpms"
+ - "rhel-7-server-ose-3.6-rpms"
+ - "rhel-7-server-extras-rpms"
+ - "rhel-7-fast-datapath-rpms"
+
+# Using Red Hat Satellite:
+#rhsm_satellite: 'sat-6.example.com'
+#rhsm_org: 'CASL_ORG'
+#rhsm_activationkey: 'casl-latest'
+#rhsm_password: ''
+
+# # Or using RHN username, password and optionally pool:
+rhsm_username: ''
+rhsm_password: ''
+# # leave commented out if you want to `--auto-attach` a pool
+rhsm_pool: ''
