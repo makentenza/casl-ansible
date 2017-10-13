@@ -1,17 +1,5 @@
 ---
 # tasks file for deploy-infra
-- name: Gather information of Region {{ aws_region }}
-  ec2_vpc_net_facts:
-    region: "{{ aws_region }}"
-  register: aws_vpcs
-
-- name: Gather information of AZs in {{ aws_region }}
-  ec2_vpc_subnet_facts:
-    region: "{{ aws_region }}"
-    filters:
-      vpc-id: '{{ aws_vpcs.vpcs.0.id }}'
-  register: aws_subnets
-
 - name: Create VPC if required
   ec2_vpc_net:
     aws_access_key: "{{ aws_access_key }}"
@@ -29,29 +17,7 @@
   ec2_vpc_subnet:
     aws_access_key: "{{ aws_access_key }}"
     aws_secret_key: "{{ aws_secret_key }}"
-    cidr: 172.31.{{ item.subnet }}.0/24
-    region: "{{ aws_region }}"
-    vpc_id: "{{ new_vpc.vpc.id }}"
-    map_public: yes
-    az: "{{ item.az }}"
-    state: "present"
-    tags:
-      env_id: "{{ env_id }}"
-  with_items:
-    - { subnet: '0', az: "{{ aws_subnets.subnets.0.availability_zone }}" }
-    - { subnet: '1', az: "{{ aws_subnets.subnets.1.availability_zone }}" }
-    - { subnet: '3', az: "{{ aws_subnets.subnets.2.availability_zone }}" }
-  when: aws_create_vpc and ha_mode
-  register: new_subnets
-
-- name: Clear gathered facts from all currently targeted hosts
-  meta: end_play
-
-- name: Create Subnets for the new VPC (HA Mode)
-  ec2_vpc_subnet:
-    aws_access_key: "{{ aws_access_key }}"
-    aws_secret_key: "{{ aws_secret_key }}"
-    cidr: 172.31.{{ item }}.0/24
+    cidr: 172.31.{{ item }}.0/20
     region: "{{ aws_region }}"
     vpc_id: "{{ new_vpc.vpc.id }}"
     map_public: yes
@@ -59,7 +25,7 @@
     state: "present"
     tags:
       env_id: "{{ env_id }}"
-  with_sequence: start=0 end=2 stride=1
+  with_sequence: start=0 end=64 stride=16
   when: aws_create_vpc and ha_mode
   register: new_subnets
 
@@ -67,7 +33,7 @@
   ec2_vpc_subnet:
     aws_access_key: "{{ aws_access_key }}"
     aws_secret_key: "{{ aws_secret_key }}"
-    cidr: 172.31.0.0/24
+    cidr: 172.31.0.0/20
     region: "{{ aws_region }}"
     vpc_id: "{{ new_vpc.vpc.id }}"
     map_public: yes
