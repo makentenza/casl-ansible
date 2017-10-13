@@ -3,10 +3,10 @@
 - include: provision-instances.yml
 
 # Pre-Install Steps
-- include: pre-install.yml
+#- include: pre-install.yml
 
 # Install
-- include: install.yml
+#- include: install.yml
 
 # Post Install
-- include: post-install.yml
+#- include: post-install.yml
