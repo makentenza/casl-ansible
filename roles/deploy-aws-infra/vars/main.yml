@@ -1,5 +1,0 @@
----
-master_tag: master
-etcd_tag: etcd
-infranode_tag: infranode
-computenode_tag: computenode
