@@ -59,7 +59,8 @@ ansible-galaxy install -r casl-requirements.yml -p roles
 #### AWS specific requirements
 * Requirements to use the AWS provision can be found in the Role's [README](roles/manage-aws-infra/README.md)
 * A [Key-pair created or imported in AWS](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair)
-* Modify the 'regions' entry from 'ec2.ini' file in your environment to match the region you are deploying OCP
+* Modify 'regions' entry (line 13) from 'ec2.ini' file in your environment to match the 'aws_region' variable in your inventory
+* Modify 'instance_filters' entry (line 14) from 'ec2.ini' file in your environment to match the 'env_id' variable in your inventory
 
 
 Cool! Now you're ready to provision OpenShift clusters on OpenStack and AWS
