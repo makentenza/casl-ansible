@@ -1,5 +1,8 @@
 # Requirements file to support Ansible Galaxy from Ansible Tower project updates
 
+# from galaxy
+- src: yatesr.timezone
+
 # From 'infra-ansible'
 - src: https://github.com/redhat-cop/infra-ansible
 
