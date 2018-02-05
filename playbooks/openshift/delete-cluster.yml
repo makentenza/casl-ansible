@@ -1,7 +1,16 @@
 ---
 - hosts: seed-hosts
+  tasks:
+  - name: Check if 'oc' binary from atomic-openshift-clients exists
+    stat:
+      path: /usr/bin/oc
+    register: atomic-client
+
+- hosts: seed-hosts
   roles:
   - openshift-ansible-contrib/roles/openshift-pv-cleanup
+  when:
+    - atomic-client.stat.exists == True
 
 - import_playbook: delete-openstack.yml
   when:
