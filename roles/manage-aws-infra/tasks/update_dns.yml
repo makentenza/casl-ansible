@@ -20,6 +20,19 @@
     ttl: 300
   when: not ha_mode
 
+- name: Update Route53 with a CNAME to OCP master API
+  route53:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    zone: "{{ dns_domain }}."
+    record: "console.{{ env_id }}.{{ dns_domain }}."
+    type: CNAME
+    value: "master-0.{{ env_id }}.{{ dns_domain }}"
+    command: create
+    overwrite: yes
+    ttl: 300
+  when: not ha_mode
+
 - name: Update Route53 with OCP infra wildcard record
   route53:
     aws_access_key: "{{ aws_access_key }}"
