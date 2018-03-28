@@ -428,7 +428,7 @@ Resources:
         {% endif -%}
         {% if docker_storage_block_device is defined -%}
         - DeviceName: "{{ docker_storage_block_device }}"
-        {% else -%}
+          {% else -%}
         - DeviceName: "{{ default_docker_volume }}"
           {% endif -%}
           Ebs:
@@ -485,7 +485,7 @@ Resources:
         {% endif -%}
         {% if docker_storage_block_device is defined -%}
         - DeviceName: "{{ docker_storage_block_device }}"
-        {% else -%}
+          {% else -%}
         - DeviceName: "{{ default_docker_volume }}"
           {% endif -%}
           Ebs:
@@ -542,7 +542,7 @@ Resources:
         {% endif -%}
         {% if docker_storage_block_device is defined -%}
         - DeviceName: "{{ docker_storage_block_device }}"
-        {% else -%}
+          {% else -%}
         - DeviceName: "{{ default_docker_volume }}"
           {% endif -%}
           Ebs:
@@ -598,7 +598,7 @@ Resources:
         {% endif -%}
         {% if docker_storage_block_device is defined -%}
         - DeviceName: "{{ docker_storage_block_device }}"
-        {% else -%}
+          {% else -%}
         - DeviceName: "{{ default_docker_volume }}"
           {% endif -%}
           Ebs:
@@ -668,7 +668,7 @@ Resources:
         {% endif -%}
         {% if cns_node_volume is defined -%}
         - DeviceName: "{{ cns_node_volume }}"
-        {% else -%}
+          {% else -%}
         - DeviceName: "{{ default_cns_volume }}"
           {% endif -%}
           Ebs:
