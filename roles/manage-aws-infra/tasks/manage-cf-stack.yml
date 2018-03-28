@@ -1,7 +1,7 @@
 ---
 - name: Create underlaying Infrastructure
   cloudformation:
-    stack_name: "test-casl-{{ env_id }}"
+    stack_name: "{{ env_id }}"
     state: "{{ action }}"
     region: "{{ aws_region }}"
     template: "/tmp/casl-aws-cformation.yml"

@@ -99,6 +99,8 @@ Resources:
       Tags:
       - Key: 'Name'
         Value: '{{ env_id }}'
+      - Key: 'kubernetes.io/cluster/cluster-{{ env_id }}'
+        Value: '{{ env_id }}'
   SubnetAZ2:
     Type: AWS::EC2::Subnet
     Properties:
@@ -112,6 +114,8 @@ Resources:
       Tags:
       - Key: 'Name'
         Value: '{{ env_id }}'
+      - Key: 'kubernetes.io/cluster/cluster-{{ env_id }}'
+        Value: '{{ env_id }}'
   SubnetAZ3:
     Type: AWS::EC2::Subnet
     Properties:
@@ -124,6 +128,8 @@ Resources:
           - Fn::GetAZs: ""
       Tags:
       - Key: 'Name'
+        Value: '{{ env_id }}'
+      - Key: 'kubernetes.io/cluster/cluster-{{ env_id }}'
         Value: '{{ env_id }}'
   RouteTable:
     Type: AWS::EC2::RouteTable
@@ -398,6 +404,10 @@ Resources:
           Value: '{{ env_id }}'
         - Key: 'group'
           Value: '{{ group_masters_tag }}'
+        - Key: 'node_labels'
+          Value: '{{ labels_masters_tag }}'
+        - Key: 'kubernetes.io/cluster/cluster-{{ env_id }}'
+          Value: '{{ env_id }}'
       AvailabilityZone:
         Fn::Select:
           - {{ loop.index0 }}
@@ -451,6 +461,10 @@ Resources:
           Value: '{{ env_id }}'
         - Key: 'groupetcd'
           Value: '{{ group_etcd_nodes_tag }}'
+        - Key: 'node_labels'
+          Value: '{{ labels_etcd_nodes_tag }}'
+        - Key: 'kubernetes.io/cluster/cluster-{{ env_id }}'
+          Value: '{{ env_id }}'
       AvailabilityZone:
         Fn::Select:
           - {{ loop.index0 }}
@@ -504,6 +518,10 @@ Resources:
           Value: '{{ env_id }}'
         - Key: 'group'
           Value: '{{ group_infra_nodes_tag }}'
+        - Key: 'node_labels'
+          Value: '{{ labels_infra_nodes_tag }}'
+        - Key: 'kubernetes.io/cluster/cluster-{{ env_id }}'
+          Value: '{{ env_id }}'
       AvailabilityZone:
         Fn::Select:
           - {{ loop.index0 }}
@@ -556,6 +574,10 @@ Resources:
           Value: '{{ env_id }}'
         - Key: 'group'
           Value: '{{ group_app_nodes_tag }}'
+        - Key: 'node_labels'
+          Value: '{{ labels_app_nodes_tag }}'
+        - Key: 'kubernetes.io/cluster/cluster-{{ env_id }}'
+          Value: '{{ env_id }}'
       AvailabilityZone:
         Fn::Select:
           - {{ loop.index0 }}
@@ -609,6 +631,10 @@ Resources:
           Value: '{{ env_id }}'
         - Key: 'group'
           Value: '{{ group_cns_nodes_tag }}'
+        - Key: 'node_labels'
+          Value: '{{ labels_cns_nodes_tag }}'
+        - Key: 'kubernetes.io/cluster/cluster-{{ env_id }}'
+          Value: '{{ env_id }}'
       AvailabilityZone:
         Fn::Select:
           - {{ loop.index0 }}
@@ -735,27 +761,15 @@ Resources:
       HostedZoneName: "{{ dns_domain }}."
       RecordSets:
       - Name: "{{ openshift_master_cluster_public_hostname }}."
-        Type: CNAME
+        Type: A
         AliasTarget:
-          HostedZoneId:
-            Fn::GetAtt:
-            - MasterExtElb
-            - CanonicalHostedZoneNameID
-          DNSName:
-            Fn::GetAtt:
-            - MasterExtElb
-            - CanonicalHostedZoneName
+          HostedZoneId: !GetAtt MasterExtElb.CanonicalHostedZoneNameID
+          DNSName: !GetAtt MasterExtElb.CanonicalHostedZoneName
       - Name: "*.{{ openshift_master_default_subdomain }}."
-        Type: CNAME
+        Type: A
         AliasTarget:
-          HostedZoneId:
-            Fn::GetAtt:
-            - InfraElb
-            - CanonicalHostedZoneNameID
-          DNSName:
-            Fn::GetAtt:
-            - InfraElb
-            - CanonicalHostedZoneName
+          HostedZoneId: !GetAtt InfraElb.CanonicalHostedZoneNameID
+          DNSName: !GetAtt InfraElb.CanonicalHostedZoneName
 Outputs:
   VpcId:
     Value: !Ref VPC
