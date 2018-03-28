@@ -765,6 +765,11 @@ Resources:
         AliasTarget:
           HostedZoneId: !GetAtt MasterExtElb.CanonicalHostedZoneNameID
           DNSName: !GetAtt MasterExtElb.CanonicalHostedZoneName
+      - Name: "{{ openshift_master_cluster_hostname }}."
+        Type: A
+        AliasTarget:
+          HostedZoneId: !GetAtt MasterExtElb.CanonicalHostedZoneNameID
+          DNSName: !GetAtt MasterExtElb.CanonicalHostedZoneName
       - Name: "*.{{ openshift_master_default_subdomain }}."
         Type: A
         AliasTarget:

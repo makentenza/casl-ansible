@@ -21,6 +21,7 @@ openshift_master_console_port: 443
 
 # Define custom console and apps public DNS Name
 openshift_master_default_subdomain: "apps.{{ env_id }}.{{ dns_domain }}"
+openshift_master_cluster_hostname: "master-0.{{ env_id }}.{{ dns_domain }}"
 openshift_master_cluster_public_hostname: "console.{{ env_id }}.{{ dns_domain }}"
 
 # AWS instance flavors (i.e.: instance sizes)
@@ -87,7 +88,7 @@ docker_version: "1.12.*"
 
 # Docker Storage configuration variables - for all nodes
 # - default values are "/dev/xvdb" and "40"
-#docker_storage_block_device: "/dev/xvdb"
+docker_storage_block_device: "/dev/xvdb"
 #docker_volume_size: "40"
 
 # CNS (GlusterFS) Storage configuration variables
