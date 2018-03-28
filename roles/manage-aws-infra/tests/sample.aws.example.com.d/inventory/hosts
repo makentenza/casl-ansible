@@ -36,7 +36,8 @@ tag_group_cns_nodes_aws
 [infra_hosts:children]
 tag_group_infra_nodes_aws
 
-[glusterfs]
+[glusterfs:children]
+tag_group_cns_nodes_aws
 
 [tag_group_masters_aws]
 [tag_groupetcd_etcd_nodes_aws]

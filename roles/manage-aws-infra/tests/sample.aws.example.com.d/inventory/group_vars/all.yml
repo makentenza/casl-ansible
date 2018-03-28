@@ -8,7 +8,7 @@
 hosting_infrastructure: aws
 
 # Cluster Environment ID to uniquely identify the environment
-env_id: "cftest01"
+env_id: "casl-cftest01"
 
 ## AWS Provisioning Variables
 # Amazon image name to use for instances.
@@ -18,6 +18,10 @@ aws_image_name: ami-b3d841dc
 # Define custom Master(s) API adn Console Port - Default 8443
 openshift_master_api_port: 443
 openshift_master_console_port: 443
+
+# Define custom console and apps public DNS Name
+openshift_master_default_subdomain: "apps.{{ env_id }}.{{ dns_domain }}"
+openshift_master_cluster_public_hostname: "console.{{ env_id }}.{{ dns_domain }}"
 
 # AWS instance flavors (i.e.: instance sizes)
 master_flavor: m4.xlarge
@@ -49,7 +53,7 @@ aws_num_cns_nodes: 0
 # the 'dns_domain' will be used as the base domain for the deployment and has
 # to be a domain that is managed by Route53 within your AWS account
 # the 'dns_nameservers' is a list of DNS resolvers the cluster should use
-dns_domain: "<REPLACE WITH A VALID ROUTE53 DNS DOMAIN>"
+dns_domain: "cftest.local"
 dns_nameservers:
 - 8.8.8.8
 

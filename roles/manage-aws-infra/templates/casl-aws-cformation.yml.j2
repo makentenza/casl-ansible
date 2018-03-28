@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: "Red Hat's Container & PaaS CoP - CASL repository AWS CloudFormation template for OCP"
+Description: "Red Hat's Container & PaaS CoP - CASL repository AWS CloudFormation template for OCP - Environment: {{ env_id }}"
 Parameters:
   VPCCIDR:
     Default: "10.0.0.0/16"
@@ -74,13 +74,13 @@ Resources:
       EnableDnsHostnames: True
       Tags:
       - Key: 'Name'
-        Value: 'casl-{{ env_id }}'
+        Value: '{{ env_id }}'
   InternetGateway:
     Type: "AWS::EC2::InternetGateway"
     Properties:
       Tags:
       - Key: 'Name'
-        Value: 'casl-{{ env_id }}'
+        Value: '{{ env_id }}'
   AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -98,7 +98,7 @@ Resources:
           - Fn::GetAZs: ""
       Tags:
       - Key: 'Name'
-        Value: 'casl-{{ env_id }}'
+        Value: '{{ env_id }}'
   SubnetAZ2:
     Type: AWS::EC2::Subnet
     Properties:
@@ -111,7 +111,7 @@ Resources:
           - Fn::GetAZs: ""
       Tags:
       - Key: 'Name'
-        Value: 'casl-{{ env_id }}'
+        Value: '{{ env_id }}'
   SubnetAZ3:
     Type: AWS::EC2::Subnet
     Properties:
@@ -124,14 +124,14 @@ Resources:
           - Fn::GetAZs: ""
       Tags:
       - Key: 'Name'
-        Value: 'casl-{{ env_id }}'
+        Value: '{{ env_id }}'
   RouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPC
       Tags:
       - Key: 'Name'
-        Value: 'casl-{{ env_id }}'
+        Value: '{{ env_id }}'
   RouteInternetGW:
     Type: "AWS::EC2::Route"
     Properties:
@@ -172,7 +172,7 @@ Resources:
         CidrIp: 0.0.0.0/0
       Tags:
       - Key: 'Name'
-        Value: 'casl-{{ env_id }}'
+        Value: '{{ env_id }}'
   infraelbsg:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -195,7 +195,7 @@ Resources:
         CidrIp: 0.0.0.0/0
       Tags:
       - Key: 'Name'
-        Value: 'casl-{{ env_id }}'
+        Value: '{{ env_id }}'
   mastersg:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -238,7 +238,7 @@ Resources:
         CidrIp: 0.0.0.0/0
       Tags:
       - Key: 'Name'
-        Value: 'casl-{{ env_id }}'
+        Value: '{{ env_id }}'
   infrasg:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -261,7 +261,7 @@ Resources:
         CidrIp: 0.0.0.0/0
       Tags:
       - Key: 'Name'
-        Value: 'casl-{{ env_id }}'
+        Value: '{{ env_id }}'
   nodesg:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -284,7 +284,7 @@ Resources:
         CidrIp: 0.0.0.0/0
       Tags:
       - Key: 'Name'
-        Value: 'casl-{{ env_id }}'
+        Value: '{{ env_id }}'
   sshsg:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -303,7 +303,7 @@ Resources:
         CidrIp: 0.0.0.0/0
       Tags:
       - Key: 'Name'
-        Value: 'casl-{{ env_id }}'
+        Value: '{{ env_id }}'
   etcdsg:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -326,7 +326,7 @@ Resources:
         CidrIp: 0.0.0.0/0
       Tags:
       - Key: 'Name'
-        Value: 'casl-{{ env_id }}'
+        Value: '{{ env_id }}'
   cnssg:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -369,8 +369,8 @@ Resources:
         CidrIp: 0.0.0.0/0
       Tags:
       - Key: 'Name'
-        Value: 'casl-{{ env_id }}'
-{% for idx in range(1, aws_num_masters|int + 1) %}
+        Value: '{{ env_id }}'
+{% for idx in range(0, aws_num_masters) %}
   Master{{ '%02d' % idx }}:
     Type: "AWS::EC2::Instance"
     Properties:
@@ -391,11 +391,11 @@ Resources:
           Value: '{{ group_etcd_nodes_tag }}'
         {% endif -%}
         - Key: 'Name'
-          Value: 'master{{ '%02d' % idx }}'
+          Value: 'master-{{ idx }}.{{ env_id }}.{{ dns_domain }}'
         - Key: 'ocp_role'
           Value: 'master'
         - Key: 'env_id'
-          Value: 'casl-{{ env_id }}'
+          Value: '{{ env_id }}'
         - Key: 'group'
           Value: '{{ group_masters_tag }}'
       AvailabilityZone:
@@ -430,7 +430,7 @@ Resources:
             VolumeSize: "{{ default_docker_volume_size }}"
 {% endif -%}
 {% endfor %}
-{% for idx in range(1, aws_num_etcd|int + 1) %}
+{% for idx in range(0, aws_num_etcd) %}
   ETCD{{ '%02d' % idx }}:
     Type: "AWS::EC2::Instance"
     Properties:
@@ -444,11 +444,11 @@ Resources:
         - !GetAtt sshsg.GroupId
       Tags:
         - Key: 'Name'
-          Value: 'etcd{{ '%02d' % idx }}'
+          Value: 'etcd-{{ idx }}.{{ env_id }}.{{ dns_domain }}'
         - Key: 'ocp_role'
           Value: 'etcd'
         - Key: 'env_id'
-          Value: 'casl-{{ env_id }}'
+          Value: '{{ env_id }}'
         - Key: 'groupetcd'
           Value: '{{ group_etcd_nodes_tag }}'
       AvailabilityZone:
@@ -483,7 +483,7 @@ Resources:
             VolumeSize: "{{ default_docker_volume_size }}"
 {% endif -%}
 {% endfor %}
-{% for idx in range(1, aws_num_infra_nodes|int + 1) %}
+{% for idx in range(0, aws_num_infra_nodes) %}
   Infra{{ '%02d' % idx }}:
     Type: "AWS::EC2::Instance"
     Properties:
@@ -497,11 +497,11 @@ Resources:
         - !GetAtt sshsg.GroupId
       Tags:
         - Key: 'Name'
-          Value: 'infra{{ '%02d' % idx }}'
+          Value: 'infra-{{ idx }}.{{ env_id }}.{{ dns_domain }}'
         - Key: 'ocp_role'
           Value: 'infranode'
         - Key: 'env_id'
-          Value: 'casl-{{ env_id }}'
+          Value: '{{ env_id }}'
         - Key: 'group'
           Value: '{{ group_infra_nodes_tag }}'
       AvailabilityZone:
@@ -536,7 +536,7 @@ Resources:
             VolumeSize: "{{ default_docker_volume_size }}"
 {% endif -%}
 {% endfor %}
-{% for idx in range(1, aws_num_app_nodes|int + 1) %}
+{% for idx in range(0, aws_num_app_nodes) %}
   Node{{ '%02d' % idx }}:
     Type: "AWS::EC2::Instance"
     Properties:
@@ -549,11 +549,11 @@ Resources:
         - !GetAtt sshsg.GroupId
       Tags:
         - Key: 'Name'
-          Value: 'node{{ '%02d' % idx }}'
+          Value: 'node-{{ idx }}.{{ env_id }}.{{ dns_domain }}'
         - Key: 'ocp_role'
           Value: 'computenode'
         - Key: 'env_id'
-          Value: 'casl-{{ env_id }}'
+          Value: '{{ env_id }}'
         - Key: 'group'
           Value: '{{ group_app_nodes_tag }}'
       AvailabilityZone:
@@ -588,7 +588,7 @@ Resources:
             VolumeSize: "{{ default_docker_volume_size }}"
 {% endif -%}
 {% endfor %}
-{% for idx in range(1, aws_num_cns_nodes|int + 1) %}
+{% for idx in range(0, aws_num_cns_nodes) %}
   CNS{{ '%02d' % idx }}:
     Type: "AWS::EC2::Instance"
     Properties:
@@ -602,11 +602,11 @@ Resources:
         - !GetAtt cnssg.GroupId
       Tags:
         - Key: 'Name'
-          Value: 'cns{{ '%02d' % idx }}'
+          Value: 'cns-{{ idx }}.{{ dns_domain }}.{{ dns_domain }}'
         - Key: 'ocp_role'
           Value: 'cnsnode'
         - Key: 'env_id'
-          Value: 'casl-{{ env_id }}'
+          Value: '{{ env_id }}'
         - Key: 'group'
           Value: '{{ group_cns_nodes_tag }}'
       AvailabilityZone:
@@ -664,7 +664,7 @@ Resources:
       - Key: Name
         Value: ocp_master_elb
       - Key: env
-        Value: 'casl-{{ env_id }}'
+        Value: '{{ env_id }}'
       HealthCheck:
         HealthyThreshold: '2'
         Interval: '5'
@@ -679,7 +679,7 @@ Resources:
       SecurityGroups:
       - !Ref apielbsg
       Instances:
-      {% for idx in range(1, aws_num_masters|int + 1) -%}
+      {% for idx in range(0, aws_num_masters) -%}
       - !Ref Master{{ '%02d' % idx }}
       {% endfor -%}
       Subnets:
@@ -694,7 +694,7 @@ Resources:
       - Key: Name
         Value: ocp_router_elb
       - Key: env
-        Value: 'casl-{{ env_id }}'
+        Value: '{{ env_id }}'
       HealthCheck:
         HealthyThreshold: '2'
         Interval: '5'
@@ -713,13 +713,49 @@ Resources:
       SecurityGroups:
       - !Ref infraelbsg
       Instances:
-      {% for idx in range(1, aws_num_infra_nodes|int + 1) -%}
+      {% for idx in range(0, aws_num_infra_nodes) -%}
       - !Ref Infra{{ '%02d' % idx }}
       {% endfor -%}
       Subnets:
       - !Ref SubnetAZ1
       - !Ref SubnetAZ2
       - !Ref SubnetAZ3
+  Route53Records:
+    Type: AWS::Route53::RecordSetGroup
+    DependsOn:
+    - InfraElb
+    - MasterExtElb
+    {% for idx in range(0, aws_num_infra_nodes) -%}
+    - Infra{{ '%02d' % idx }}
+    {% endfor -%}
+    {% for idx in range(0, aws_num_masters) -%}
+    - Master{{ '%02d' % idx }}
+    {% endfor -%}
+    Properties:
+      HostedZoneName: "{{ dns_domain }}."
+      RecordSets:
+      - Name: "{{ openshift_master_cluster_public_hostname }}."
+        Type: CNAME
+        AliasTarget:
+          HostedZoneId:
+            Fn::GetAtt:
+            - MasterExtElb
+            - CanonicalHostedZoneNameID
+          DNSName:
+            Fn::GetAtt:
+            - MasterExtElb
+            - CanonicalHostedZoneName
+      - Name: "*.{{ openshift_master_default_subdomain }}."
+        Type: CNAME
+        AliasTarget:
+          HostedZoneId:
+            Fn::GetAtt:
+            - InfraElb
+            - CanonicalHostedZoneNameID
+          DNSName:
+            Fn::GetAtt:
+            - InfraElb
+            - CanonicalHostedZoneName
 Outputs:
   VpcId:
     Value: !Ref VPC
