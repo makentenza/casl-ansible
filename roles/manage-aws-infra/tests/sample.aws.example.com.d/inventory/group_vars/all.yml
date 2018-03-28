@@ -8,15 +8,20 @@
 hosting_infrastructure: aws
 
 # Cluster Environment ID to uniquely identify the environment
-env_id: "<REPLACE WITH VALID ENV ID - i.e: env1>"
+env_id: "cftest01"
 
 ## AWS Provisioning Variables
 # Amazon image name to use for instances.
 # Note that each AWS region may utilize a different AMI for the same image.
-aws_image_name: <REPLACE WITH VALID AMI>
+aws_image_name: ami-b3d841dc
+
+# Define custom Master(s) API adn Console Port - Default 8443
+openshift_master_api_port: 443
+openshift_master_console_port: 443
 
 # AWS instance flavors (i.e.: instance sizes)
 master_flavor: m4.xlarge
+etcd_flavor: m4.xlarge
 infra_node_flavor: i3.xlarge
 app_node_flavor: m4.xlarge
 cns_node_flavor: i3.xlarge
@@ -83,8 +88,8 @@ docker_version: "1.12.*"
 
 # CNS (GlusterFS) Storage configuration variables
 # - default values are "/dev/xvdg" and "200"
-#cns_node_glusterfs_volume: "/dev/xvdg"
-#cns_node_glusterfs_volume_size: "200"
+#cns_node_volume: "/dev/xvdg"
+#cns_node_volume_size: "200"
 
 # AWS access keys used by the tools to interact with ec2
 # This example uses ENV variables (recommended), but the values
@@ -92,7 +97,7 @@ docker_version: "1.12.*"
 aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
 aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
 
-aws_region: <REPLACE WITH VALID AWS REGION>
+aws_region: eu-central-1
 
 # If aws_create_vpc is 'true', aws_vpc_id and aws_subnet_id variables will be ignored
 aws_create_vpc: true
@@ -104,6 +109,7 @@ aws_subnet_id: <REPLACE WITH VALID SUBNET ID>
 
 # These are the security groups created when aws_create_vpc is 'true'. Modify accordingly to your environment in case using existing VPC and SGs
 aws_master_sgroups: ['ocp-ssh', 'ocp-master', 'ocp-app-node']
+aws_etcd_sgroups: ['ocp-ssh', 'ocp-etcd', 'ocp-app-node']
 aws_infra_node_sgroups: ['ocp-ssh', 'ocp-infra-node', 'ocp-app-node']
 aws_app_node_sgroups: ['ocp-ssh', 'ocp-app-node']
 aws_cns_node_sgroups: ['ocp-ssh', 'ocp-app-node', 'ocp-cns']
@@ -118,14 +124,18 @@ app_node_name: app-node
 cns_node_name: cns
 
 group_masters_tag: masters_aws
+group_etcd_nodes_tag: etcd_nodes_aws
 group_infra_nodes_tag: infra_nodes_aws
 group_app_nodes_tag: app_nodes_aws
 group_cns_nodes_tag: cns_nodes_aws
 
+
 labels_masters_tag: '{"region": "default"}'
+labels_etcd_nodes_tag: '{"region": "primary"}'
 labels_infra_nodes_tag: '{"region": "infra"}'
 labels_app_nodes_tag: '{"region": "primary"}'
 labels_cns_nodes_tag: '{"region": "primary"}'
+
 
 # Should the Instance Termination Protection be set yes/no
 aws_termination_protection: yes

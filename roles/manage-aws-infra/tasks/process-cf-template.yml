@@ -1,0 +1,8 @@
+---
+- name: "Process CloudFormation Template"
+  template:
+    src: "{{ role_path}}/templates/casl-aws-cformation.yml.j2"
+    dest: /tmp/casl-aws-cformation.yml
+  register: template_location
+
+- debug: var=template_location

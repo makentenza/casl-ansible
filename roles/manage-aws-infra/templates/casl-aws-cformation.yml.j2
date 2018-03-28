@@ -47,6 +47,10 @@ Parameters:
     Default: "443"
     Description: "Exposed OpenShift API port number"
     Type: "String"
+  MasterHealthTarget:
+    Description: "Master API exposed Port for the LB HealthCheck"
+    Default: "TCP:8443"
+    Type: "String"
   #PublicSubnet1CIDR:
   #PublicSubnet2CIDR:
   #PublicSubnet3CIDR:
@@ -58,8 +62,8 @@ Parameters:
   #NumberOfNodes:
   #NumberOfInfra:
   #NumberOfCNS:
-  
-  
+
+
 Resources:
 {% if aws_create_vpc %}
   VPC:
@@ -130,7 +134,7 @@ Resources:
         Value: 'casl-{{ env_id }}'
   RouteInternetGW:
     Type: "AWS::EC2::Route"
-    Properties: 
+    Properties:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref InternetGateway
       RouteTableId: !Ref RouteTable
@@ -367,45 +371,69 @@ Resources:
       - Key: 'Name'
         Value: 'casl-{{ env_id }}'
 {% for idx in range(1, aws_num_masters|int + 1) %}
-  Master{{ '%02d' % idx }}: 
+  Master{{ '%02d' % idx }}:
     Type: "AWS::EC2::Instance"
-    Properties: 
+    Properties:
       ImageId: !Ref Image
       KeyName: !Ref KeyPairName
       InstanceType: !Ref MasterInstanceType
       SubnetId : !Ref SubnetAZ{{ loop.index }}
       SecurityGroupIds:
+        {% if aws_num_etcd == 0 -%}
         - !GetAtt etcdsg.GroupId
+        {% endif -%}
         - !GetAtt nodesg.GroupId
         - !GetAtt mastersg.GroupId
         - !GetAtt sshsg.GroupId
       Tags:
+        {% if aws_num_etcd == 0 -%}
+        - Key: 'groupetcd'
+          Value: '{{ group_etcd_nodes_tag }}'
+        {% endif -%}
         - Key: 'Name'
           Value: 'master{{ '%02d' % idx }}'
         - Key: 'ocp_role'
           Value: 'master'
         - Key: 'env_id'
           Value: 'casl-{{ env_id }}'
+        - Key: 'group'
+          Value: '{{ group_masters_tag }}'
       AvailabilityZone:
         Fn::Select:
           - {{ loop.index0 }}
-          - Fn::GetAZs: "" 
-      BlockDeviceMappings: 
-        - DeviceName: "/dev/sda1"
-          Ebs: 
+          - Fn::GetAZs: ""
+      BlockDeviceMappings:
+        {% if master_root_volume is defined -%}
+        - DeviceName: "{{ master_root_volume }}"
+        {% else -%}
+        - DeviceName: "{{ default_root_volume }}"
+          {% endif -%}
+          Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
+            {% if master_root_volume_size is defined -%}
             VolumeSize: "{{ master_root_volume_size }}"
-        - DeviceName: "/dev/xvdb"
-          Ebs: 
+            {% else -%}
+            VolumeSize: "{{ default_root_volume_size }}"
+        {% endif -%}
+        {% if docker_storage_block_device is defined -%}
+        - DeviceName: "{{ docker_storage_block_device }}"
+        {% else -%}
+        - DeviceName: "{{ default_docker_volume }}"
+          {% endif -%}
+          Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
+            {% if docker_volume_size is defined -%}
             VolumeSize: "{{ docker_volume_size }}"
+            {% else -%}
+            VolumeSize: "{{ default_docker_volume_size }}"
+{% endif -%}
 {% endfor %}
 {% for idx in range(1, aws_num_etcd|int + 1) %}
-  ETCD{{ '%02d' % idx }}: 
+  ETCD{{ '%02d' % idx }}:
     Type: "AWS::EC2::Instance"
-    Properties: 
+    Properties:
       ImageId: !Ref Image
       KeyName: !Ref KeyPairName
       InstanceType: !Ref EtcdInstanceType
@@ -421,26 +449,44 @@ Resources:
           Value: 'etcd'
         - Key: 'env_id'
           Value: 'casl-{{ env_id }}'
+        - Key: 'groupetcd'
+          Value: '{{ group_etcd_nodes_tag }}'
       AvailabilityZone:
         Fn::Select:
           - {{ loop.index0 }}
-          - Fn::GetAZs: "" 
-      BlockDeviceMappings: 
-        - DeviceName: "/dev/sda1"
-          Ebs: 
+          - Fn::GetAZs: ""
+      BlockDeviceMappings:
+        {% if etcd_root_volume is defined -%}
+        - DeviceName: "{{ etcd_root_volume }}"
+        {% else -%}
+        - DeviceName: "{{ default_root_volume }}"
+          {% endif -%}
+          Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
+            {% if etcd_root_volume_size is defined -%}
             VolumeSize: "{{ etcd_root_volume_size }}"
-        - DeviceName: "/dev/xvdb"
-          Ebs: 
+            {% else -%}
+            VolumeSize: "{{ default_root_volume_size }}"
+        {% endif -%}
+        {% if docker_storage_block_device is defined -%}
+        - DeviceName: "{{ docker_storage_block_device }}"
+        {% else -%}
+        - DeviceName: "{{ default_docker_volume }}"
+          {% endif -%}
+          Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
+            {% if docker_volume_size is defined -%}
             VolumeSize: "{{ docker_volume_size }}"
+            {% else -%}
+            VolumeSize: "{{ default_docker_volume_size }}"
+{% endif -%}
 {% endfor %}
 {% for idx in range(1, aws_num_infra_nodes|int + 1) %}
-  Infra{{ '%02d' % idx }}: 
+  Infra{{ '%02d' % idx }}:
     Type: "AWS::EC2::Instance"
-    Properties: 
+    Properties:
       ImageId: !Ref Image
       KeyName: !Ref KeyPairName
       InstanceType: !Ref InfraInstanceType
@@ -456,26 +502,44 @@ Resources:
           Value: 'infranode'
         - Key: 'env_id'
           Value: 'casl-{{ env_id }}'
+        - Key: 'group'
+          Value: '{{ group_infra_nodes_tag }}'
       AvailabilityZone:
         Fn::Select:
           - {{ loop.index0 }}
-          - Fn::GetAZs: "" 
-      BlockDeviceMappings: 
-        - DeviceName: "/dev/sda1"
-          Ebs: 
+          - Fn::GetAZs: ""
+      BlockDeviceMappings:
+        {% if infra_node_root_volume is defined -%}
+        - DeviceName: "{{ infra_node_root_volume }}"
+        {% else -%}
+        - DeviceName: "{{ default_root_volume }}"
+          {% endif -%}
+          Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
+            {% if infra_node_root_volume_size is defined -%}
             VolumeSize: "{{ infra_node_root_volume_size }}"
-        - DeviceName: "/dev/xvdb"
-          Ebs: 
+            {% else -%}
+            VolumeSize: "{{ default_root_volume_size }}"
+        {% endif -%}
+        {% if docker_storage_block_device is defined -%}
+        - DeviceName: "{{ docker_storage_block_device }}"
+        {% else -%}
+        - DeviceName: "{{ default_docker_volume }}"
+          {% endif -%}
+          Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
+            {% if docker_volume_size is defined -%}
             VolumeSize: "{{ docker_volume_size }}"
+            {% else -%}
+            VolumeSize: "{{ default_docker_volume_size }}"
+{% endif -%}
 {% endfor %}
 {% for idx in range(1, aws_num_app_nodes|int + 1) %}
-  Node{{ '%02d' % idx }}: 
+  Node{{ '%02d' % idx }}:
     Type: "AWS::EC2::Instance"
-    Properties: 
+    Properties:
       ImageId: !Ref Image
       KeyName: !Ref KeyPairName
       InstanceType: !Ref NodesInstanceType
@@ -490,26 +554,44 @@ Resources:
           Value: 'computenode'
         - Key: 'env_id'
           Value: 'casl-{{ env_id }}'
+        - Key: 'group'
+          Value: '{{ group_app_nodes_tag }}'
       AvailabilityZone:
         Fn::Select:
           - {{ loop.index0 }}
-          - Fn::GetAZs: "" 
-      BlockDeviceMappings: 
-        - DeviceName: "/dev/sda1"
-          Ebs: 
+          - Fn::GetAZs: ""
+      BlockDeviceMappings:
+        {% if app_node_root_volume is defined -%}
+        - DeviceName: "{{ app_node_root_volume }}"
+        {% else -%}
+        - DeviceName: "{{ default_root_volume }}"
+          {% endif -%}
+          Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
+            {% if app_node_root_volume_size is defined -%}
             VolumeSize: "{{ app_node_root_volume_size }}"
-        - DeviceName: "/dev/xvdb"
-          Ebs: 
+            {% else -%}
+            VolumeSize: "{{ default_root_volume_size }}"
+        {% endif -%}
+        {% if docker_storage_block_device is defined -%}
+        - DeviceName: "{{ docker_storage_block_device }}"
+        {% else -%}
+        - DeviceName: "{{ default_docker_volume }}"
+          {% endif -%}
+          Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
+            {% if docker_volume_size is defined -%}
             VolumeSize: "{{ docker_volume_size }}"
+            {% else -%}
+            VolumeSize: "{{ default_docker_volume_size }}"
+{% endif -%}
 {% endfor %}
 {% for idx in range(1, aws_num_cns_nodes|int + 1) %}
-  CNS{{ '%02d' % idx }}: 
+  CNS{{ '%02d' % idx }}:
     Type: "AWS::EC2::Instance"
-    Properties: 
+    Properties:
       ImageId: !Ref Image
       KeyName: !Ref KeyPairName
       InstanceType: !Ref CNSInstanceType
@@ -525,27 +607,53 @@ Resources:
           Value: 'cnsnode'
         - Key: 'env_id'
           Value: 'casl-{{ env_id }}'
+        - Key: 'group'
+          Value: '{{ group_cns_nodes_tag }}'
       AvailabilityZone:
         Fn::Select:
           - {{ loop.index0 }}
-          - Fn::GetAZs: "" 
-      BlockDeviceMappings: 
-        - DeviceName: "/dev/sda1"
-          Ebs: 
+          - Fn::GetAZs: ""
+      BlockDeviceMappings:
+        {% if cns_node_root_volume is defined -%}
+        - DeviceName: "{{ cns_node_root_volume }}"
+        {% else -%}
+        - DeviceName: "{{ default_root_volume }}"
+          {% endif -%}
+          Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
+            {% if cns_node_root_volume_size is defined -%}
             VolumeSize: "{{ cns_node_root_volume_size }}"
-        - DeviceName: "/dev/xvdb"
-          Ebs: 
+            {% else -%}
+            VolumeSize: "{{ default_root_volume_size }}"
+        {% endif -%}
+        {% if docker_storage_block_device is defined -%}
+        - DeviceName: "{{ docker_storage_block_device }}"
+        {% else -%}
+        - DeviceName: "{{ default_docker_volume }}"
+          {% endif -%}
+          Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
+            {% if docker_volume_size is defined -%}
             VolumeSize: "{{ docker_volume_size }}"
-        - DeviceName: "/dev/xvdc"
-          Ebs: 
+            {% else -%}
+            VolumeSize: "{{ default_docker_volume_size }}"
+        {% endif -%}
+        {% if cns_node_volume is defined -%}
+        - DeviceName: "{{ cns_node_volume }}"
+        {% else -%}
+        - DeviceName: "{{ default_cns_volume }}"
+          {% endif -%}
+          Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
-            VolumeSize: "{{ cns_node_glusterfs_volume_size }}"
-  {% endfor %}
+            {% if cns_node_volume_size is defined -%}
+            VolumeSize: "{{ cns_node_volume_size }}"
+            {% else -%}
+            VolumeSize: "{{ default_cns_volume_size }}"
+{% endif -%}
+{% endfor %}
   MasterExtElb:
     Type: AWS::ElasticLoadBalancing::LoadBalancer
     Properties:
@@ -560,8 +668,7 @@ Resources:
       HealthCheck:
         HealthyThreshold: '2'
         Interval: '5'
-        Target:
-          Ref: MasterHealthTarget
+        Target: !Ref MasterHealthTarget
         Timeout: '2'
         UnhealthyThreshold: '2'
       Listeners:
@@ -571,14 +678,14 @@ Resources:
         Protocol: TCP
       SecurityGroups:
       - !Ref apielbsg
+      Instances:
+      {% for idx in range(1, aws_num_masters|int + 1) -%}
+      - !Ref Master{{ '%02d' % idx }}
+      {% endfor -%}
       Subnets:
       - !Ref SubnetAZ1
       - !Ref SubnetAZ2
       - !Ref SubnetAZ3
-      Instances:
-      - !Ref Master01
-      - !Ref Master02
-      - !Ref Master03
   InfraElb:
     Type: AWS::ElasticLoadBalancing::LoadBalancer
     Properties:
@@ -604,15 +711,15 @@ Resources:
         LoadBalancerPort: '80'
         Protocol: TCP
       SecurityGroups:
-      - Ref: infraelbsg
+      - !Ref infraelbsg
+      Instances:
+      {% for idx in range(1, aws_num_infra_nodes|int + 1) -%}
+      - !Ref Infra{{ '%02d' % idx }}
+      {% endfor -%}
       Subnets:
       - !Ref SubnetAZ1
       - !Ref SubnetAZ2
       - !Ref SubnetAZ3
-      Instances:
-      - !Ref Infra01
-      - !Ref Infra02
-      - !Ref Infra03
 Outputs:
   VpcId:
     Value: !Ref VPC
