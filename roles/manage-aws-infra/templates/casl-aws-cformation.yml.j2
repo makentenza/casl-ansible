@@ -413,32 +413,16 @@ Resources:
           - {{ loop.index0 }}
           - Fn::GetAZs: ""
       BlockDeviceMappings:
-        {% if master_root_volume is defined -%}
         - DeviceName: "{{ master_root_volume }}"
-        {% else -%}
-        - DeviceName: "{{ default_root_volume }}"
-          {% endif -%}
           Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
-            {% if master_root_volume_size is defined -%}
             VolumeSize: "{{ master_root_volume_size }}"
-            {% else -%}
-            VolumeSize: "{{ default_root_volume_size }}"
-        {% endif -%}
-        {% if docker_storage_block_device is defined -%}
         - DeviceName: "{{ docker_storage_block_device }}"
-          {% else -%}
-        - DeviceName: "{{ default_docker_volume }}"
-          {% endif -%}
           Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
-            {% if docker_volume_size is defined -%}
-            VolumeSize: "{{ docker_volume_size }}"
-            {% else -%}
-            VolumeSize: "{{ default_docker_volume_size }}"
-{% endif -%}
+            VolumeSize: "{{ docker_storage_volume_size }}"
 {% endfor %}
 {% for idx in range(0, aws_num_etcd) %}
   ETCD{{ '%02d' % idx }}:
@@ -470,32 +454,16 @@ Resources:
           - {{ loop.index0 }}
           - Fn::GetAZs: ""
       BlockDeviceMappings:
-        {% if etcd_root_volume is defined -%}
         - DeviceName: "{{ etcd_root_volume }}"
-        {% else -%}
-        - DeviceName: "{{ default_root_volume }}"
-          {% endif -%}
           Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
-            {% if etcd_root_volume_size is defined -%}
             VolumeSize: "{{ etcd_root_volume_size }}"
-            {% else -%}
-            VolumeSize: "{{ default_root_volume_size }}"
-        {% endif -%}
-        {% if docker_storage_block_device is defined -%}
         - DeviceName: "{{ docker_storage_block_device }}"
-          {% else -%}
-        - DeviceName: "{{ default_docker_volume }}"
-          {% endif -%}
           Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
-            {% if docker_volume_size is defined -%}
-            VolumeSize: "{{ docker_volume_size }}"
-            {% else -%}
-            VolumeSize: "{{ default_docker_volume_size }}"
-{% endif -%}
+            VolumeSize: "{{ docker_storage_volume_size }}"
 {% endfor %}
 {% for idx in range(0, aws_num_infra_nodes) %}
   Infra{{ '%02d' % idx }}:
@@ -527,41 +495,32 @@ Resources:
           - {{ loop.index0 }}
           - Fn::GetAZs: ""
       BlockDeviceMappings:
-        {% if infra_node_root_volume is defined -%}
         - DeviceName: "{{ infra_node_root_volume }}"
-        {% else -%}
-        - DeviceName: "{{ default_root_volume }}"
-          {% endif -%}
           Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
-            {% if infra_node_root_volume_size is defined -%}
             VolumeSize: "{{ infra_node_root_volume_size }}"
-            {% else -%}
-            VolumeSize: "{{ default_root_volume_size }}"
-        {% endif -%}
-        {% if docker_storage_block_device is defined -%}
         - DeviceName: "{{ docker_storage_block_device }}"
-          {% else -%}
-        - DeviceName: "{{ default_docker_volume }}"
-          {% endif -%}
           Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
-            {% if docker_volume_size is defined -%}
-            VolumeSize: "{{ docker_volume_size }}"
-            {% else -%}
-            VolumeSize: "{{ default_docker_volume_size }}"
-{% endif -%}
+            VolumeSize: "{{ docker_storage_volume_size }}"
 {% endfor %}
 {% for idx in range(0, aws_num_app_nodes) %}
+{% if loop.index > 3 -%}
+  {% set AZbase1rotator = range(1, 3) | random %}
+  {% set AZbase0rotator = AZbase1rotator - 1 %}
+{% else -%}
+  {% set AZbase1rotator = loop.index %}
+  {% set AZbase0rotator = AZbase1rotator - 1 %}
+{% endif -%}
   Node{{ '%02d' % idx }}:
     Type: "AWS::EC2::Instance"
     Properties:
       ImageId: !Ref Image
       KeyName: !Ref KeyPairName
       InstanceType: !Ref NodesInstanceType
-      SubnetId : !Ref SubnetAZ{{ loop.index }}
+      SubnetId : !Ref SubnetAZ{{ AZbase1rotator }}
       SecurityGroupIds:
         - !GetAtt nodesg.GroupId
         - !GetAtt sshsg.GroupId
@@ -580,35 +539,19 @@ Resources:
           Value: '{{ env_id }}'
       AvailabilityZone:
         Fn::Select:
-          - {{ loop.index0 }}
+          - {{ AZbase0rotator }}
           - Fn::GetAZs: ""
       BlockDeviceMappings:
-        {% if app_node_root_volume is defined -%}
         - DeviceName: "{{ app_node_root_volume }}"
-        {% else -%}
-        - DeviceName: "{{ default_root_volume }}"
-          {% endif -%}
           Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
-            {% if app_node_root_volume_size is defined -%}
             VolumeSize: "{{ app_node_root_volume_size }}"
-            {% else -%}
-            VolumeSize: "{{ default_root_volume_size }}"
-        {% endif -%}
-        {% if docker_storage_block_device is defined -%}
         - DeviceName: "{{ docker_storage_block_device }}"
-          {% else -%}
-        - DeviceName: "{{ default_docker_volume }}"
-          {% endif -%}
           Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
-            {% if docker_volume_size is defined -%}
-            VolumeSize: "{{ docker_volume_size }}"
-            {% else -%}
-            VolumeSize: "{{ default_docker_volume_size }}"
-{% endif -%}
+            VolumeSize: "{{ docker_storage_volume_size }}"
 {% endfor %}
 {% for idx in range(0, aws_num_cns_nodes) %}
   CNS{{ '%02d' % idx }}:
@@ -640,45 +583,21 @@ Resources:
           - {{ loop.index0 }}
           - Fn::GetAZs: ""
       BlockDeviceMappings:
-        {% if cns_node_root_volume is defined -%}
         - DeviceName: "{{ cns_node_root_volume }}"
-        {% else -%}
-        - DeviceName: "{{ default_root_volume }}"
-          {% endif -%}
           Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
-            {% if cns_node_root_volume_size is defined -%}
             VolumeSize: "{{ cns_node_root_volume_size }}"
-            {% else -%}
-            VolumeSize: "{{ default_root_volume_size }}"
-        {% endif -%}
-        {% if docker_storage_block_device is defined -%}
         - DeviceName: "{{ docker_storage_block_device }}"
-        {% else -%}
-        - DeviceName: "{{ default_docker_volume }}"
-          {% endif -%}
           Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
-            {% if docker_volume_size is defined -%}
-            VolumeSize: "{{ docker_volume_size }}"
-            {% else -%}
-            VolumeSize: "{{ default_docker_volume_size }}"
-        {% endif -%}
-        {% if cns_node_volume is defined -%}
-        - DeviceName: "{{ cns_node_volume }}"
-          {% else -%}
-        - DeviceName: "{{ default_cns_volume }}"
-          {% endif -%}
+            VolumeSize: "{{ docker_storage_volume_size }}"
+        - DeviceName: "{{ cns_node_glusterfs_volume }}"
           Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
-            {% if cns_node_volume_size is defined -%}
-            VolumeSize: "{{ cns_node_volume_size }}"
-            {% else -%}
-            VolumeSize: "{{ default_cns_volume_size }}"
-{% endif -%}
+            VolumeSize: "{{ cns_node_glusterfs_volume_size }}"
 {% endfor %}
   MasterExtElb:
     Type: AWS::ElasticLoadBalancing::LoadBalancer

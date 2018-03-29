@@ -44,7 +44,7 @@ aws_num_etcd: 0
 aws_num_infra_nodes: 1
 
 # Number of instances to be used as compute/app nodes
-aws_num_app_nodes: 3
+aws_num_app_nodes: 8
 
 # Number of instances to be used as CNS (Container Native Storage) nodes
 aws_num_cns_nodes: 0
@@ -88,7 +88,7 @@ docker_version: "1.12.*"
 
 # Docker Storage configuration variables - for all nodes
 # - default values are "/dev/xvdb" and "40"
-docker_storage_block_device: "/dev/xvdb"
+#docker_storage_block_device: "/dev/xvdb"
 #docker_volume_size: "40"
 
 # CNS (GlusterFS) Storage configuration variables
@@ -110,7 +110,7 @@ aws_vpc_id: <REPLACE WITH VALID VPC ID>
 aws_subnet_id: <REPLACE WITH VALID SUBNET ID>
 
 # use the "-e" option to set "aws_key_name"
-#aws_key_name: my-ssh-region-key
+aws_key_name: mak-eu-central-1
 
 # These are the security groups created when aws_create_vpc is 'true'. Modify accordingly to your environment in case using existing VPC and SGs
 aws_master_sgroups: ['ocp-ssh', 'ocp-master', 'ocp-app-node']

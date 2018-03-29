@@ -4,15 +4,14 @@
     stack_name: "{{ env_id }}"
     state: "{{ action }}"
     region: "{{ aws_region }}"
-    template: "/tmp/casl-aws-cformation.yml"
+    template: "{{ cftemplate.dest }}"
     template_parameters:
-      #AvailabilityZones:
       VPCCIDR: "10.20.0.0/16"
       PrivateSubnet1CIDR: "10.20.1.0/24"
       PrivateSubnet2CIDR: "10.20.2.0/24"
       PrivateSubnet3CIDR: "10.20.3.0/24"
       Image: "{{ aws_image_name }}"
-      KeyPairName: "mak-eu-central-1"
+      KeyPairName: "{{ aws_key_name }}"
       MasterInstanceType: "{{ master_flavor }}"
       EtcdInstanceType: "{{ etcd_flavor }}"
       NodesInstanceType: "{{ app_node_flavor }}"
@@ -30,11 +29,6 @@
       # NumberOfNodes:
       # NumberOfInfra:
       # NumberOfCNS:
-
-
-#
-#
-      # Region: "{{ region }}"
       # Route53HostedZone: "{{ public_hosted_zone }}."
       # PublicHostedZone: "{{ public_hosted_zone }}"
       # MasterApiPort: "{{ console_port }}"
