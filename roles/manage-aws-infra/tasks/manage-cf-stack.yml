@@ -1,5 +1,5 @@
 ---
-- name: Create underlaying Infrastructure
+- name: Ensure the underlaying infrastructure is {{ action }}
   cloudformation:
     stack_name: "{{ env_id }}"
     state: "{{ action }}"

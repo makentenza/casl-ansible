@@ -2,3 +2,14 @@
 - hosts: localhost
   roles:
     - { role: manage-aws-infra, action: 'present' }
+
+- name: Refresh Server inventory
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  tasks:
+  - meta: refresh_inventory
+
+  - name: Wait for system to become reachable
+    wait_for_connection:
+      timeout: 300

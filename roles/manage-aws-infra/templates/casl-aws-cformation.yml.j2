@@ -694,6 +694,126 @@ Resources:
         AliasTarget:
           HostedZoneId: !GetAtt InfraElb.CanonicalHostedZoneNameID
           DNSName: !GetAtt InfraElb.CanonicalHostedZoneName
-Outputs:
-  VpcId:
-    Value: !Ref VPC
+  PrivateDNSZone: 
+    Type: "AWS::Route53::HostedZone"
+    Properties: 
+      HostedZoneConfig: 
+        Comment: "Private DNS Zone for {{ env_id }}.{{ dns_domain }}"
+      Name: "{{ env_id }}.{{ dns_domain }}"
+      VPCs: 
+        - 
+          VPCId: !Ref VPC
+          VPCRegion: "{{ aws_region }}"
+  PrivateRecords:
+    Type: AWS::Route53::RecordSetGroup
+    DependsOn:
+    - PrivateDNSZone
+    {% for idx in range(0, aws_num_infra_nodes) -%}
+    - Infra{{ '%02d' % idx }}
+    {% endfor -%}
+    {% for idx in range(0, aws_num_masters) -%}
+    - Master{{ '%02d' % idx }}
+    {% endfor -%}
+    {% for idx in range(0, aws_num_cns_nodes) -%}
+    - CNS{{ '%02d' % idx }}
+    {% endfor -%}
+    {% for idx in range(0, aws_num_app_nodes) -%}
+    - Node{{ '%02d' % idx }}
+    {% endfor -%}
+    {% for idx in range(0, aws_num_etcd) -%}
+    - ETCD{{ '%02d' % idx }}
+    {% endfor -%}
+    Properties:
+      HostedZoneName: "{{ env_id }}.{{ dns_domain }}."
+      RecordSets:
+      {% for idx in range(0, aws_num_infra_nodes) -%}
+      - Name: "infra-{{ idx }}.{{ env_id }}.{{ dns_domain }}."
+        Type: CNAME
+        TTL: 300
+        ResourceRecords:
+         - !GetAtt Infra{{ '%02d' % idx }}.PrivateDnsName
+      {% endfor -%}
+      {% for idx in range(0, aws_num_masters) -%}
+      - Name: "master-{{ idx }}.{{ env_id }}.{{ dns_domain }}."
+        Type: CNAME
+        TTL: 300
+        ResourceRecords:
+         - !GetAtt Master{{ '%02d' % idx }}.PrivateDnsName
+      {% endfor -%}
+      {% for idx in range(0, aws_num_cns_nodes) -%}
+      - Name: "cns-{{ idx }}.{{ dns_domain }}.{{ dns_domain }}."
+        Type: CNAME
+        TTL: 300
+        ResourceRecords:
+         - !GetAtt CNS{{ '%02d' % idx }}.PrivateDnsName
+      {% endfor -%}
+      {% for idx in range(0, aws_num_app_nodes) -%}
+      - Name: "node-{{ idx }}.{{ env_id }}.{{ dns_domain }}."
+        Type: CNAME
+        TTL: 300
+        ResourceRecords:
+         - !GetAtt Node{{ '%02d' % idx }}.PrivateDnsName
+      {% endfor -%}
+      {% for idx in range(0, aws_num_etcd) -%}
+      - Name: "etcd-{{ idx }}.{{ env_id }}.{{ dns_domain }}."
+        Type: CNAME
+        TTL: 300
+        ResourceRecords:
+         - !GetAtt ETCD{{ '%02d' % idx }}.PrivateDnsName
+{% endfor -%}
+  PublicRecords:
+    Type: AWS::Route53::RecordSetGroup
+    DependsOn:
+    {% for idx in range(0, aws_num_infra_nodes) -%}
+    - Infra{{ '%02d' % idx }}
+    {% endfor -%}
+    {% for idx in range(0, aws_num_masters) -%}
+    - Master{{ '%02d' % idx }}
+    {% endfor -%}
+    {% for idx in range(0, aws_num_cns_nodes) -%}
+    - CNS{{ '%02d' % idx }}
+    {% endfor -%}
+    {% for idx in range(0, aws_num_app_nodes) -%}
+    - Node{{ '%02d' % idx }}
+    {% endfor -%}
+    {% for idx in range(0, aws_num_etcd) -%}
+    - ETCD{{ '%02d' % idx }}
+    {% endfor -%}
+    Properties:
+      HostedZoneName: "{{ dns_domain }}."
+      RecordSets:
+      {% for idx in range(0, aws_num_infra_nodes) -%}
+      - Name: "infra-{{ idx }}.{{ env_id }}.{{ dns_domain }}."
+        Type: CNAME
+        TTL: 300
+        ResourceRecords:
+        - !GetAtt Infra{{ '%02d' % idx }}.PublicDnsName
+      {% endfor -%}
+      {% for idx in range(0, aws_num_masters) -%}
+      - Name: "master-{{ idx }}.{{ env_id }}.{{ dns_domain }}."
+        Type: CNAME
+        TTL: 300
+        ResourceRecords:
+        - !GetAtt Master{{ '%02d' % idx }}.PublicDnsName
+      {% endfor -%}
+      {% for idx in range(0, aws_num_cns_nodes) -%}
+      - Name: "cns-{{ idx }}.{{ dns_domain }}.{{ dns_domain }}."
+        Type: CNAME
+        TTL: 300
+        ResourceRecords:
+        - !GetAtt CNS{{ '%02d' % idx }}.PublicDnsName
+      {% endfor -%}
+      {% for idx in range(0, aws_num_app_nodes) -%}
+      - Name: "node-{{ idx }}.{{ env_id }}.{{ dns_domain }}."
+        Type: CNAME
+        TTL: 300
+        ResourceRecords:
+        - !GetAtt Node{{ '%02d' % idx }}.PublicDnsName
+      {% endfor -%}
+      {% for idx in range(0, aws_num_etcd) -%}
+      - Name: "etcd-{{ idx }}.{{ env_id }}.{{ dns_domain }}."
+        Type: CNAME
+        TTL: 300
+        ResourceRecords:
+        - !GetAtt ETCD{{ '%02d' % idx }}.PublicDnsName
+      {% endfor -%}

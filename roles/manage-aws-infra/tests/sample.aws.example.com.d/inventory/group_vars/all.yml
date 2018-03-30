@@ -44,7 +44,7 @@ aws_num_etcd: 0
 aws_num_infra_nodes: 1
 
 # Number of instances to be used as compute/app nodes
-aws_num_app_nodes: 8
+aws_num_app_nodes: 3
 
 # Number of instances to be used as CNS (Container Native Storage) nodes
 aws_num_cns_nodes: 0
