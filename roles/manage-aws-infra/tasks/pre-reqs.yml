@@ -1,11 +1,4 @@
 ---
-#- name: Fail when delete_vpc is not defined
-#  debug:
-#    msg: "delete_vpc boolean variable must be specified to remove the Cluster"
-#  failed_when:
-#    - delete_vpc is not defined
-#    - operation == "absent"
-
 - name: Fail when AWS KEY environment variables are not defined
   debug:
     msg: "Both 'AWS_ACCESS_KEY_ID' and 'AWS_SECRET_ACCESS_KEY' environment variables must be defined"
@@ -28,3 +21,7 @@
     cns_node_glusterfs_volume_size: "{{ cns_node_glusterfs_volume_size | default(default_cns_volume_size) }}"
     docker_storage_block_device: "{{ docker_storage_block_device | default(default_docker_volume) }}"
     docker_storage_volume_size: "{{ docker_storage_volume_size | default(default_docker_volume_size) }}"
+    VPCCIDR: "{{ vpc_cidr | default(default_vpc_cidr) }}"
+    PrivateSubnet1CIDR: "{{ subnet_az1_cidr | default(default_subnet_az1_cidr) }}"
+    PrivateSubnet2CIDR: "{{ subnet_az2_cidr | default(default_subnet_az2_cidr) }}"
+    PrivateSubnet3CIDR: "{{ subnet_az2_cidr | default(default_subnet_az3_cidr) }}"

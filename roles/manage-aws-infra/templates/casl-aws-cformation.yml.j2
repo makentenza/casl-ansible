@@ -51,19 +51,6 @@ Parameters:
     Description: "Master API exposed Port for the LB HealthCheck"
     Default: "TCP:8443"
     Type: "String"
-  #PublicSubnet1CIDR:
-  #PublicSubnet2CIDR:
-  #PublicSubnet3CIDR:
-  #RemoteAccessCIDR:
-  #ContainerAccessCIDR:
-  #KeyPairName:
-  #NumberOfMaster:
-  #NumberOfEtcd:
-  #NumberOfNodes:
-  #NumberOfInfra:
-  #NumberOfCNS:
-
-
 Resources:
 {% if aws_create_vpc %}
   VPC:
@@ -86,7 +73,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
-  SubnetAZ1:
+  SubnetAZ1-{{ zones }}:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
@@ -101,7 +88,7 @@ Resources:
         Value: '{{ env_id }}'
       - Key: 'kubernetes.io/cluster/cluster-{{ env_id }}'
         Value: '{{ env_id }}'
-  SubnetAZ2:
+  SubnetAZ2-{{ zones }}:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
@@ -116,7 +103,7 @@ Resources:
         Value: '{{ env_id }}'
       - Key: 'kubernetes.io/cluster/cluster-{{ env_id }}'
         Value: '{{ env_id }}'
-  SubnetAZ3:
+  SubnetAZ3-{{ zones }}:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
@@ -205,7 +192,7 @@ Resources:
   mastersg:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: mastersg
+      GroupName: ocp-master
       GroupDescription: Master Nodes Security Group
       VpcId: !Ref VPC
       SecurityGroupIngress:
@@ -248,7 +235,7 @@ Resources:
   infrasg:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: infrasg
+      GroupName: ocp-infra-node
       GroupDescription: Infrastructure Nodes Security Group
       VpcId: !Ref VPC
       SecurityGroupIngress:
@@ -271,7 +258,7 @@ Resources:
   nodesg:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: nodesg
+      GroupName: ocp-app-node
       GroupDescription: Compute Nodes Security Group
       VpcId: !Ref VPC
       SecurityGroupIngress:
@@ -294,7 +281,7 @@ Resources:
   sshsg:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: sshsg
+      GroupName: ocp-ssh
       GroupDescription: SSH Server Security Group
       VpcId: !Ref VPC
       SecurityGroupIngress:
@@ -313,7 +300,7 @@ Resources:
   etcdsg:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: etcdsg
+      GroupName: ocp-etcd
       GroupDescription: ETCD Nodes Security Group
       VpcId: !Ref VPC
       SecurityGroupIngress:
@@ -336,7 +323,7 @@ Resources:
   cnssg:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: cnssg
+      GroupName: ocp-cns
       GroupDescription: Gluster Nodes Security Group
       VpcId: !Ref VPC
       SecurityGroupIngress:
@@ -694,14 +681,14 @@ Resources:
         AliasTarget:
           HostedZoneId: !GetAtt InfraElb.CanonicalHostedZoneNameID
           DNSName: !GetAtt InfraElb.CanonicalHostedZoneName
-  PrivateDNSZone: 
+  PrivateDNSZone:
     Type: "AWS::Route53::HostedZone"
-    Properties: 
-      HostedZoneConfig: 
+    Properties:
+      HostedZoneConfig:
         Comment: "Private DNS Zone for {{ env_id }}.{{ dns_domain }}"
       Name: "{{ env_id }}.{{ dns_domain }}"
-      VPCs: 
-        - 
+      VPCs:
+        -
           VPCId: !Ref VPC
           VPCRegion: "{{ aws_region }}"
   PrivateRecords:
@@ -760,7 +747,22 @@ Resources:
         TTL: 300
         ResourceRecords:
          - !GetAtt ETCD{{ '%02d' % idx }}.PrivateDnsName
-{% endfor -%}
+      {% endfor -%}
+      - Name: "{{ openshift_master_cluster_public_hostname }}."
+        Type: A
+        AliasTarget:
+          HostedZoneId: !GetAtt MasterExtElb.CanonicalHostedZoneNameID
+          DNSName: !GetAtt MasterExtElb.CanonicalHostedZoneName
+      - Name: "{{ openshift_master_cluster_hostname }}."
+        Type: A
+        AliasTarget:
+          HostedZoneId: !GetAtt MasterExtElb.CanonicalHostedZoneNameID
+          DNSName: !GetAtt MasterExtElb.CanonicalHostedZoneName
+      - Name: "*.{{ openshift_master_default_subdomain }}."
+        Type: A
+        AliasTarget:
+          HostedZoneId: !GetAtt InfraElb.CanonicalHostedZoneNameID
+          DNSName: !GetAtt InfraElb.CanonicalHostedZoneName
   PublicRecords:
     Type: AWS::Route53::RecordSetGroup
     DependsOn:

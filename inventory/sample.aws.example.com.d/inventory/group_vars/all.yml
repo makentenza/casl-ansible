@@ -15,22 +15,29 @@ env_id: "<REPLACE WITH VALID ENV ID - i.e: env1>"
 # Note that each AWS region may utilize a different AMI for the same image.
 aws_image_name: <REPLACE WITH VALID AMI>
 
-# AWS instance flavors (i.e.: instance sizes)
+# Define custom Master(s) API adn Console Port - Default 8443
+#openshift_master_api_port: 443
+#openshift_master_console_port: 443
+
+# Define custom console and apps public DNS Name
+openshift_master_default_subdomain: "apps.{{ env_id }}.{{ dns_domain }}"
+openshift_master_cluster_hostname: "console.internal.{{ env_id }}.{{ dns_domain }}"
+openshift_master_cluster_public_hostname: "console.{{ env_id }}.{{ dns_domain }}"
+
+# AWS instance definitions
 master_flavor: m4.xlarge
+etcd_flavor: m4.xlarge
 infra_node_flavor: i3.xlarge
 app_node_flavor: m4.xlarge
 cns_node_flavor: i3.xlarge
 
 # Number of master instances to deploy.
-# This is a non-HA sample nventory so don't change this value
 aws_num_masters: 1
 
 # Number of etcd instances to deploy.
-# This is a non-HA sample nventory so values can be 0 or 1
 aws_num_etcd: 0
 
 # Number of instances to be used as infra nodes.
-# This is a non-HA sample inventory so don't change this value
 aws_num_infra_nodes: 1
 
 # Number of instances to be used as compute/app nodes
@@ -96,14 +103,26 @@ aws_region: <REPLACE WITH VALID AWS REGION>
 
 # If aws_create_vpc is 'true', aws_vpc_id and aws_subnet_id variables will be ignored
 aws_create_vpc: true
-aws_vpc_id: <REPLACE WITH VALID VPC ID>
-aws_subnet_id: <REPLACE WITH VALID SUBNET ID>
+
+# Custom Subnet CIDR configuration. When selecting aws_create_vpc 'true', a default CIDR will be creted for both VPC and subnets on each AZ
+# Use the following variables if you want to configure custom CIDR
+#vpc_cidr: <REPLACE WITH VALID CIDR VALUE>
+#subnet_az1_cidr: <REPLACE WITH VALID CIDR VALUE>
+#subnet_az2_cidr: <REPLACE WITH VALID CIDR VALUE>
+#subnet_az3_cdir:  <REPLACE WITH VALID CIDR VALUE>
+
+# Custom VPC configuration. When selecting aws_create_vpc 'false', an existing VPC id must be provided and at least 1 subnet ID.
+#aws_vpc_id: <REPLACE WITH VALID VPC ID>
+#aws_subnet_az1_id: <REPLACE WITH VALID SUBNET ID>
+#aws_subnet_az2_id: <REPLACE WITH VALID SUBNET ID>
+#aws_subnet_az3_id: <REPLACE WITH VALID SUBNET ID>
 
 # use the "-e" option to set "aws_key_name"
 #aws_key_name: my-ssh-region-key
 
 # These are the security groups created when aws_create_vpc is 'true'. Modify accordingly to your environment in case using existing VPC and SGs
 aws_master_sgroups: ['ocp-ssh', 'ocp-master', 'ocp-app-node']
+aws_etcd_sgroups: ['ocp-ssh', 'ocp-etcd', 'ocp-app-node']
 aws_infra_node_sgroups: ['ocp-ssh', 'ocp-infra-node', 'ocp-app-node']
 aws_app_node_sgroups: ['ocp-ssh', 'ocp-app-node']
 aws_cns_node_sgroups: ['ocp-ssh', 'ocp-app-node', 'ocp-cns']
@@ -118,21 +137,17 @@ app_node_name: app-node
 cns_node_name: cns
 
 group_masters_tag: masters_aws
+group_etcd_nodes_tag: etcd_nodes_aws
 group_infra_nodes_tag: infra_nodes_aws
 group_app_nodes_tag: app_nodes_aws
 group_cns_nodes_tag: cns_nodes_aws
 
 labels_masters_tag: '{"region": "default"}'
+labels_etcd_nodes_tag: '{"region": "primary"}'
 labels_infra_nodes_tag: '{"region": "infra"}'
 labels_app_nodes_tag: '{"region": "primary"}'
 labels_cns_nodes_tag: '{"region": "primary"}'
 
-# Should the Instance Termination Protection be set yes/no
-aws_termination_protection: yes
-
-# Should the cluster be configured for HA
-# - currently not supported
-ha_mode: false
 
 # Subscription Management Details
 rhsm_register: True
@@ -148,6 +163,9 @@ rhsm_repos:
 # NOTE: use the -e option to specify on CLI instead of statically set here
 rhsm_username: '<REPLACE WITH VALID RHSM USERNAME>'
 rhsm_password: '<REPLACE WITH VALID RHSM PASSWORD>'
+# Get RHSM required values from system variables
+#rhsm_username: "{{ lookup('env','RHN_USER') }}"
+#rhsm_password: "{{ lookup('env','RHN_PASSWD') }}"
 
 # leave commented out if you want to `--auto-attach` a pool
 #rhsm_pool: ''

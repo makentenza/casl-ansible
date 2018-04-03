@@ -10,6 +10,9 @@
   tasks:
   - meta: refresh_inventory
 
-  - name: Wait for system to become reachable
-    wait_for_connection:
+- name: Wait for systems to become reachable
+  hosts: cluster_hosts
+  gather_facts: False
+  tasks:
+  - wait_for_connection:
       timeout: 300

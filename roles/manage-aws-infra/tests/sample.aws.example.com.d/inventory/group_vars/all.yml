@@ -21,7 +21,7 @@ openshift_master_console_port: 443
 
 # Define custom console and apps public DNS Name
 openshift_master_default_subdomain: "apps.{{ env_id }}.{{ dns_domain }}"
-openshift_master_cluster_hostname: "master-0.{{ env_id }}.{{ dns_domain }}"
+openshift_master_cluster_hostname: "console.internal.{{ env_id }}.{{ dns_domain }}"
 openshift_master_cluster_public_hostname: "console.{{ env_id }}.{{ dns_domain }}"
 
 # AWS instance flavors (i.e.: instance sizes)
@@ -33,18 +33,18 @@ cns_node_flavor: i3.xlarge
 
 # Number of master instances to deploy.
 # This is a non-HA sample nventory so don't change this value
-aws_num_masters: 1
+aws_num_masters: 3
 
 # Number of etcd instances to deploy.
 # This is a non-HA sample nventory so values can be 0 or 1
-aws_num_etcd: 0
+aws_num_etcd: 3
 
 # Number of instances to be used as infra nodes.
 # This is a non-HA sample inventory so don't change this value
-aws_num_infra_nodes: 1
+aws_num_infra_nodes: 2
 
 # Number of instances to be used as compute/app nodes
-aws_num_app_nodes: 3
+aws_num_app_nodes: 4
 
 # Number of instances to be used as CNS (Container Native Storage) nodes
 aws_num_cns_nodes: 0

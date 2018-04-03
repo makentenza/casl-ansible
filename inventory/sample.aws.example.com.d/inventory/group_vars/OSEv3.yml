@@ -35,8 +35,9 @@ osm_cockpit_plugins:
 - 'cockpit-kubernetes'
 
 # OpenShift FQDNs, DNS, App domain specific configurations
+openshift_master_cluster_method: native
 openshift_master_default_subdomain: "apps.{{ env_id }}.{{ dns_domain }}"
-openshift_master_cluster_hostname: "master-0.{{ env_id }}.{{ dns_domain }}"
+openshift_master_cluster_hostname: "console.internal.{{ env_id }}.{{ dns_domain }}"
 openshift_master_cluster_public_hostname: "console.{{ env_id }}.{{ dns_domain }}"
 
 # Change default ports to use standard 443

@@ -1,7 +1,4 @@
 ---
-
-#delete_vpc: false
-
 default_root_volume: '/dev/sda1'
 default_docker_volume: '/dev/xvdb'
 default_cns_volume: '/dev/xvdg'
@@ -9,3 +6,8 @@ default_cns_volume: '/dev/xvdg'
 default_root_volume_size: '50'
 default_docker_volume_size: '40'
 default_cns_volume_size: '200'
+
+default_vpc_cidr: '10.20.0.0/16'
+default_subnet_az1_cidr: '10.20.1.0/24'
+default_subnet_az2_cidr: '10.20.2.0/24'
+default_subnet_az3_cidr: '10.20.3.0/24'
