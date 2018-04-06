@@ -11,3 +11,35 @@ default_vpc_cidr: '10.20.0.0/16'
 default_subnet_az1_cidr: '10.20.1.0/24'
 default_subnet_az2_cidr: '10.20.2.0/24'
 default_subnet_az3_cidr: '10.20.3.0/24'
+
+default_aws_num_masters: 1
+default_aws_num_etcd: 0
+default_aws_num_app_nodes: 3
+default_aws_num_infra_nodes: 1
+default_aws_num_cns_nodes: 0
+default_master_flavor: "m4.xlarge"
+default_etcd_flavor: "i3.xlarge"
+default_app_node_flavor: "m4.xlarge"
+default_infra_node_flavor: "m4.xlarge"
+default_cns_node_flavor: "i3.xlarge"
+default_aws_masters_name_prefix: "master"
+default_aws_etcd_name_prefix: "etcd"
+default_aws_appnodes_name_prefix: "node"
+default_aws_infranodes_name_prefix: "infra"
+default_aws_cnsnodes_name_prefix: "cns"
+
+aws_masters_zones: "{{ cloud_infrastructure.masters.zones }}"
+aws_etcd_zones: "{{ cloud_infrastructure.etcdnodes.zones }}"
+aws_appnodes_zones: "{{ cloud_infrastructure.appnodes.zones }}"
+aws_infranodes_zones: "{{ cloud_infrastructure.infranodes.zones }}"
+aws_cnsnodes_zones: "{{ cloud_infrastructure.cnsnodes.zones }}"
+aws_masters_name_prefix: "{{ cloud_infrastructure.masters.name_prefix | default(default_aws_masters_name_prefix)}}"
+aws_etcd_name_prefix: "{{ cloud_infrastructure.etcdnodes.name_prefix | default(default_aws_etcd_name_prefix)}}"
+aws_appnodes_name_prefix: "{{ cloud_infrastructure.appnodes.name_prefix | default(default_aws_appnodes_name_prefix)}}"
+aws_infranodes_name_prefix: "{{ cloud_infrastructure.infranodes.name_prefix | default(default_aws_infranodes_name_prefix)}}"
+aws_cnsnodes_name_prefix: "{{ cloud_infrastructure.cnsnodes.name_prefix | default(default_aws_cnsnodes_name_prefix)}}"
+aws_num_masters: "{{ cloud_infrastructure.masters.count | default(default_aws_num_masters) }}"
+aws_num_etcd: "{{ cloud_infrastructure.etcdnodes.count | default(default_aws_num_etcd) }}"
+aws_num_app_nodes: "{{ cloud_infrastructure.appnodes.count | default(default_aws_num_app_nodes) }}"
+aws_num_infra_nodes: "{{ cloud_infrastructure.infranodes.count | default(default_aws_num_infra_nodes) }}"
+aws_num_cns_nodes: "{{ cloud_infrastructure.cnsnodes.count | default(default_aws_num_cns_nodes) }}"

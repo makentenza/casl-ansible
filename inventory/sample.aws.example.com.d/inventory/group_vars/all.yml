@@ -24,28 +24,55 @@ openshift_master_default_subdomain: "apps.{{ env_id }}.{{ dns_domain }}"
 openshift_master_cluster_hostname: "console.internal.{{ env_id }}.{{ dns_domain }}"
 openshift_master_cluster_public_hostname: "console.{{ env_id }}.{{ dns_domain }}"
 
-# AWS instance definitions
-master_flavor: m4.xlarge
-etcd_flavor: m4.xlarge
-infra_node_flavor: i3.xlarge
-app_node_flavor: m4.xlarge
-cns_node_flavor: i3.xlarge
-
-# Number of master instances to deploy.
-aws_num_masters: 1
-
-# Number of etcd instances to deploy.
-aws_num_etcd: 0
-
-# Number of instances to be used as infra nodes.
-aws_num_infra_nodes: 1
-
-# Number of instances to be used as compute/app nodes
-aws_num_app_nodes: 3
-
-# Number of instances to be used as CNS (Container Native Storage) nodes
-aws_num_cns_nodes: 0
-
+# Define infrastructure skeleton
+cloud_infrastructure:
+   region: <REPLACE WITH VALID REGION>
+   image_name: <REPLACE WITH VALID AMI>
+   masters:
+     count: <REPLACE WITH NUMBER OF INSTANCES TO CREATE>
+     flavor: <REPLACE WITH DESIRED FLAVOR FOR THE INSTANCE>
+     zones:
+     - <REPLACE WITH THE AZ(s) LIST TO PLACE THE INSTANCES IN>
+     - <REPLACE WITH THE AZ(s) LIST TO PLACE THE INSTANCES IN>
+     - <REPLACE WITH THE AZ(s) LIST TO PLACE THE INSTANCES IN>
+     name_prefix: <REPLACE WITH DESIRED NAME PREFIX FOR THE INSTANCE>
+     docker_volume_size: <REPLACE WITH THE SIZE (Gi) FOR DOCKER POOL DEVICE>
+   etcdnodes:
+     count: 3
+     flavor: m4.xlarge
+     zones:
+     - eu-central-1a
+     - eu-central-1b
+     - eu-central-1c
+     name_prefix: etcd
+     docker_volume_size: 40
+   appnodes:
+     count: 5
+     flavor: m4.xlarge
+     zones:
+     - eu-central-1a
+     - eu-central-1b
+     - eu-central-1c
+     name_prefix: node
+     docker_volume_size: 40
+   infranodes:
+     count: 2
+     flavor: i3.xlarge
+     zones:
+     - eu-central-1a
+     - eu-central-1b
+     name_prefix: infra
+     docker_volume_size: 40
+   cnsnodes:
+     count: 0
+     flavor: i3.xlarge
+     zones:
+     - eu-central-1a
+     - eu-central-1b
+     - eu-central-1c
+     name_prefix: cns
+     docker_volume_size: 40
+     gluster_volume_size: 200
 
 # DNS configurations
 # the 'dns_domain' will be used as the base domain for the deployment and has
@@ -130,11 +157,11 @@ aws_cns_node_sgroups: ['ocp-ssh', 'ocp-app-node', 'ocp-cns']
 # Tags and names used to identify the instances
 # Note: Be careful when changing these as the tools rely on some of these values
 # to be set correctly.
-master_name: master
-etcd_name: etcd
-infra_node_name: infra-node
-app_node_name: app-node
-cns_node_name: cns
+#master_name: master
+#etcd_name: etcd
+#infra_node_name: infra-node
+#app_node_name: app-node
+#cns_node_name: cns
 
 group_masters_tag: masters_aws
 group_etcd_nodes_tag: etcd_nodes_aws
