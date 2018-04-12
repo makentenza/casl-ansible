@@ -5,12 +5,19 @@ Automation of OpenShift and Container related tasks using [Ansible](http://www.a
 
 # Automation Topics
 
+## Provisioning Architecture
+
+CASL Ansible aims to provide a common experience for provisioning infrastructure for OpenShift across a number of Infrastructure providers.
+
+* [CASL Architecture Overview](./docs/PROVISIONING_ARCH.md)
+
 ## Provisioning An OpenShift Cluster
 
 The CASL Ansible tools provide everything needed to automatically provision an OpenShift cluster from scratch. Visit the provisioning guide relevant to you to get started.
 
 * [Provisioning an OpenShift Cluster on OpenStack](./docs/PROVISIONING_OPENSTACK.md)
 * [Provisioning an OpenShift Cluster on AWS](./docs/PROVISIONING_AWS.md)
+* [Provisioning an OpenShift Cluster on GCP](./docs/PROVISIONING_GCP.md)
 
 
 ## Automation of OpenShift Cluster Content
@@ -28,4 +35,3 @@ For some tasks, the CASL repository has several dependencies on external reposit
 * [OpenShift Ansible Contrib](https://github.com/openshift/openshift-ansible-contrib) - A repository of extra, unsupported, and upstream Ansible roles and playbooks for OpenShift
 
 > **Note:** The dependencies are managed using `ansible-galaxy` and the specific instructions will call this out when there is a need to use galaxy to pull in the correct dependencies.
-
