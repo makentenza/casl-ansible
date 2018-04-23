@@ -348,14 +348,14 @@ Resources:
       InstanceType: !Ref MasterInstanceType
       SubnetId: !Ref SubnetAZ{{ zoneidx }}
       SecurityGroupIds:
-        {% if aws_num_etcd == 0 -%}
+        {% if aws_num_etcd | int == 0 -%}
         - !GetAtt etcdsg.GroupId
         {% endif -%}
         - !GetAtt nodesg.GroupId
         - !GetAtt mastersg.GroupId
         - !GetAtt sshsg.GroupId
       Tags:
-        {% if aws_num_etcd == 0 -%}
+        {% if aws_num_etcd | int == 0 -%}
         - Key: 'groupetcd'
           Value: '{{ group_etcd_nodes_tag }}'
         {% endif -%}
