@@ -356,8 +356,11 @@ Resources:
         - !GetAtt sshsg.GroupId
       Tags:
         {% if aws_num_etcd | int == 0 -%}
-        - Key: 'groupetcd'
-          Value: '{{ group_etcd_nodes_tag }}'
+        - Key: 'group'
+          Value: '{{ group_masters_etcd_tag }}'
+        {% else -%}
+        - Key: 'group'
+          Value: '{{ group_masters_tag }}'
         {% endif -%}
         - Key: 'Name'
           Value: '{{ aws_masters_name_prefix }}-{{ idx }}.{{ env_id }}.{{ dns_domain }}'
@@ -365,8 +368,6 @@ Resources:
           Value: 'master'
         - Key: 'env_id'
           Value: '{{ env_id }}'
-        - Key: 'group'
-          Value: '{{ group_masters_tag }}'
         - Key: 'node_labels'
           Value: '{{ labels_masters_tag }}'
         - Key: 'kubernetes.io/cluster/cluster-{{ env_id }}'
@@ -405,7 +406,7 @@ Resources:
           Value: 'etcd'
         - Key: 'env_id'
           Value: '{{ env_id }}'
-        - Key: 'groupetcd'
+        - Key: 'group'
           Value: '{{ group_etcd_nodes_tag }}'
         - Key: 'node_labels'
           Value: '{{ labels_etcd_nodes_tag }}'

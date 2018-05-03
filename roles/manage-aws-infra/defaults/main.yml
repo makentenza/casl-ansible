@@ -1,45 +1,89 @@
 ---
+## Default volume device names
 default_root_volume: '/dev/sda1'
 default_docker_volume: '/dev/xvdb'
 default_cns_volume: '/dev/xvdg'
 
+## Default volume device sizes
 default_root_volume_size: '50'
 default_docker_volume_size: '40'
 default_cns_volume_size: '200'
 
+## Default VPC Network values
 default_vpc_cidr: '10.20.0.0/16'
 default_subnet_az1_cidr: '10.20.1.0/24'
 default_subnet_az2_cidr: '10.20.2.0/24'
 default_subnet_az3_cidr: '10.20.3.0/24'
 
+## Default instance numbers
 default_aws_num_masters: 1
 default_aws_num_etcd: 0
 default_aws_num_app_nodes: 3
 default_aws_num_infra_nodes: 1
 default_aws_num_cns_nodes: 0
+
+## Default instance flavors
 default_master_flavor: "m4.xlarge"
 default_etcd_flavor: "i3.xlarge"
 default_app_node_flavor: "m4.xlarge"
 default_infra_node_flavor: "m4.xlarge"
 default_cns_node_flavor: "i3.xlarge"
+
+## Default instance prefix names
 default_aws_masters_name_prefix: "master"
 default_aws_etcd_name_prefix: "etcd"
 default_aws_appnodes_name_prefix: "node"
 default_aws_infranodes_name_prefix: "infra"
 default_aws_cnsnodes_name_prefix: "cns"
 
+## Feed AZs for each instance from `cloud_infrastructure` list on the inventory
 aws_masters_zones: "{{ cloud_infrastructure.masters.zones }}"
 aws_etcd_zones: "{{ cloud_infrastructure.etcdnodes.zones }}"
 aws_appnodes_zones: "{{ cloud_infrastructure.appnodes.zones }}"
 aws_infranodes_zones: "{{ cloud_infrastructure.infranodes.zones }}"
 aws_cnsnodes_zones: "{{ cloud_infrastructure.cnsnodes.zones }}"
+
+## Feed name prefix for each instance from `cloud_infrastructure` list on the inventory
 aws_masters_name_prefix: "{{ cloud_infrastructure.masters.name_prefix | default(default_aws_masters_name_prefix)}}"
 aws_etcd_name_prefix: "{{ cloud_infrastructure.etcdnodes.name_prefix | default(default_aws_etcd_name_prefix)}}"
 aws_appnodes_name_prefix: "{{ cloud_infrastructure.appnodes.name_prefix | default(default_aws_appnodes_name_prefix)}}"
 aws_infranodes_name_prefix: "{{ cloud_infrastructure.infranodes.name_prefix | default(default_aws_infranodes_name_prefix)}}"
 aws_cnsnodes_name_prefix: "{{ cloud_infrastructure.cnsnodes.name_prefix | default(default_aws_cnsnodes_name_prefix)}}"
+
+## Feed instance numbers for each instance from `cloud_infrastructure` list on the inventory
 aws_num_masters: "{{ cloud_infrastructure.masters.count | default(default_aws_num_masters) }}"
 aws_num_etcd: "{{ cloud_infrastructure.etcdnodes.count | default(default_aws_num_etcd) }}"
 aws_num_app_nodes: "{{ cloud_infrastructure.appnodes.count | default(default_aws_num_app_nodes) }}"
 aws_num_infra_nodes: "{{ cloud_infrastructure.infranodes.count | default(default_aws_num_infra_nodes) }}"
 aws_num_cns_nodes: "{{ cloud_infrastructure.cnsnodes.count | default(default_aws_num_cns_nodes) }}"
+
+## Feed instance flavors for each instance from `cloud_infrastructure` list on the inventory
+master_flavor: "{{ cloud_infrastructure.masters.flavor | default(default_master_flavor) }}"
+etcd_flavor: "{{ cloud_infrastructure.etcdnodes.flavor | default(default_etcd_flavor) }}"
+app_node_flavor: "{{ cloud_infrastructure.appnodes.flavor | default(default_app_node_flavor) }}"
+infra_node_flavor: "{{ cloud_infrastructure.infranodes.flavor | default(default_infra_node_flavor) }}"
+cns_node_flavor: "{{ cloud_infrastructure.cnsnodes.flavor | default(default_cns_node_flavor) }}"
+
+## Feed volume device names for each instance from `cloud_infrastructure` list on the inventory
+master_root_volume: "{{ default_root_volume }}"
+etcd_root_volume: "{{ default_root_volume }}"
+infra_node_root_volume: "{{ default_root_volume }}"
+app_node_root_volume: "{{ default_root_volume }}"
+cns_node_root_volume: "{{ default_root_volume }}"
+cns_node_glusterfs_volume: "{{ cns_node_glusterfs_volume | default(default_cns_volume) }}"
+docker_storage_block_device: "{{ docker_storage_block_device | default(default_docker_volume) }}"
+
+## Feed volume device sizes for each instance from `cloud_infrastructure` list on the inventory
+master_root_volume_size: "{{ cloud_infrastructure.masters.root_volume_size | default(default_root_volume_size) }}"
+etcd_root_volume_size: "{{ cloud_infrastructure.etcdnodes.root_volume_size | default(default_root_volume_size) }}"
+infra_node_root_volume_size: "{{ cloud_infrastructure.infranodes.root_volume_size | default(default_root_volume_size) }}"
+app_node_root_volume_size: "{{ cloud_infrastructure.appnodes.root_volume_size | default(default_root_volume_size) }}"
+cns_node_root_volume_size: "{{ cloud_infrastructure.cnsnodes.root_volume_size | default(default_root_volume_size) }}"
+cns_node_glusterfs_volume_size: "{{ cns_node_glusterfs_volume_size | default(default_cns_volume_size) }}"
+docker_storage_volume_size: "{{ docker_storage_volume_size | default(default_docker_volume_size) }}"
+
+## Feed VPC Network values from the inventory
+VPCCIDR: "{{ vpc_cidr | default(default_vpc_cidr) }}"
+PrivateSubnet1CIDR: "{{ subnet_az1_cidr | default(default_subnet_az1_cidr) }}"
+PrivateSubnet2CIDR: "{{ subnet_az2_cidr | default(default_subnet_az2_cidr) }}"
+PrivateSubnet3CIDR: "{{ subnet_az2_cidr | default(default_subnet_az3_cidr) }}"
