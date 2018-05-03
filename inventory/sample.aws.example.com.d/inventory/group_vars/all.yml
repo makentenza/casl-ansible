@@ -76,6 +76,11 @@ cloud_infrastructure:
      docker_volume_size: <REPLACE WITH THE SIZE (Gi) FOR DOCKER POOL DEVICE>
      gluster_volume_size: <REPLACE WITH THE SIZE (Gi) FOR GLUSTER POOL DEVICE>
 
+
+## Temporary set for Docker and Gluster Storage block device name
+docker_storage_block_device: '/dev/xvdb'
+cns_node_glusterfs_volume: '/dev/xvdg'
+
 # DNS configurations
 # the 'dns_domain' will be used as the base domain for the deployment and has
 # to be a domain that is managed by Route53 within your AWS account

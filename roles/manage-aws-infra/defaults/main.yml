@@ -1,8 +1,8 @@
 ---
 ## Default volume device names
 default_root_volume: '/dev/sda1'
-default_docker_volume: '/dev/xvdb'
-default_cns_volume: '/dev/xvdg'
+#default_docker_volume: '/dev/xvdb'
+#default_cns_volume: '/dev/xvdg'
 
 ## Default volume device sizes
 default_root_volume_size: '50'
@@ -70,8 +70,8 @@ etcd_root_volume: "{{ default_root_volume }}"
 infra_node_root_volume: "{{ default_root_volume }}"
 app_node_root_volume: "{{ default_root_volume }}"
 cns_node_root_volume: "{{ default_root_volume }}"
-cns_node_glusterfs_volume: "{{ default_cns_volume }}"
-docker_storage_block_device: "{{ default_docker_volume }}"
+#cns_node_glusterfs_volume: "{{ default_cns_volume }}"
+#docker_storage_block_device: "{{ default_docker_volume }}"
 
 ## Feed volume device sizes for each instance from `cloud_infrastructure` list on the inventory
 master_root_volume_size: "{{ cloud_infrastructure.masters.root_volume_size | default(default_root_volume_size) }}"
