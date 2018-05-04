@@ -513,7 +513,7 @@ Resources:
       ImageId: !Ref Image
       KeyName: !Ref KeyPairName
       InstanceType: !Ref CNSInstanceType
-      SubnetId: !Ref SubnetAZ{{ subnetidx }}
+      SubnetId: !Ref SubnetAZ{{ zoneidx }}
       SecurityGroupIds:
         - !GetAtt nodesg.GroupId
         - !GetAtt sshsg.GroupId
