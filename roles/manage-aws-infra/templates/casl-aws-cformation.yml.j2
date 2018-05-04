@@ -520,7 +520,7 @@ Resources:
         - !GetAtt cnssg.GroupId
       Tags:
         - Key: 'Name'
-          Value: '{{ aws_cnsnodes_name_prefix }}-{{ idx }}.{{ dns_domain }}.{{ dns_domain }}'
+          Value: '{{ aws_cnsnodes_name_prefix }}-{{ idx }}.{{ env_id }}.{{ dns_domain }}'
         - Key: 'ocp_role'
           Value: 'cnsnode'
         - Key: 'env_id'
@@ -691,7 +691,7 @@ Resources:
          - !GetAtt Master{{ '%02d' % idx }}.PrivateDnsName
       {% endfor -%}
       {% for idx in range(0, aws_num_cns_nodes | int) -%}
-      - Name: "cns-{{ idx }}.{{ dns_domain }}.{{ dns_domain }}."
+      - Name: "cns-{{ idx }}.{{ env_id }}.{{ dns_domain }}."
         Type: CNAME
         TTL: 300
         ResourceRecords:
@@ -762,7 +762,7 @@ Resources:
         - !GetAtt Master{{ '%02d' % idx }}.PublicDnsName
       {% endfor -%}
       {% for idx in range(0, aws_num_cns_nodes | int) -%}
-      - Name: "cns-{{ idx }}.{{ dns_domain }}.{{ dns_domain }}."
+      - Name: "cns-{{ idx }}.{{ env_id }}.{{ dns_domain }}."
         Type: CNAME
         TTL: 300
         ResourceRecords:
