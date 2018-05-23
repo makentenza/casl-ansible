@@ -1,4 +1,7 @@
 ---
+- debug:
+    msg: "{{ cloud_infrastructure }}"
+    
 - name: create temporary directory to store the processed template
   tempfile:
     state: directory
