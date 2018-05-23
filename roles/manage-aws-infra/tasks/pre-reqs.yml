@@ -6,5 +6,5 @@
                (lookup('env','AWS_SECRET_ACCESS_KEY')  == "")
 
 - name: Merge infrastructure dictionary
-  set_fact: cloud_infrastructure="{{ default_cloud_infrastructure |combine(cloud_infrastructure) }}"
+  set_fact: cloud_infrastructure="{{ default_cloud_infrastructure |combine(cloud_infrastructure, recursive=True) }}"
     
