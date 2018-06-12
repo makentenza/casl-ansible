@@ -11,7 +11,8 @@ hosting_infrastructure: aws
 # Cluster Environment ID to uniquely identify the environment
 env_id: "<REPLACE WITH VALID ENV ID - i.e: env1>"
 
-# Define custom Master(s) API adn Console Port - Default 8443
+# Define custom Master(s) API and Console Port
+# Comment out these entries to use a different port for both the Web Console and OpenShift API - Default port is 8443
 #openshift_master_api_port: 443
 #openshift_master_console_port: 443
 
@@ -99,24 +100,16 @@ dns_nameservers:
 aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
 aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
 
-aws_region: <REPLACE WITH VALID AWS REGION>
-
 # If aws_create_vpc is 'true', aws_vpc_id and aws_subnet_id variables will be ignored
 # Custom VPCs support is still WIP, so this variable MUST be true right now
 aws_create_vpc: true
 
-# Custom Subnet CIDR configuration. When selecting aws_create_vpc 'true', a default CIDR will be creted for both VPC and subnets on each AZ
+# Custom Subnet CIDR configuration. When selecting aws_create_vpc 'true' (this is the default right now), a default CIDR will be creted for both VPC and subnets on each AZ
 # Use the following variables if you want to configure custom CIDR
 #vpc_cidr: <REPLACE WITH VALID CIDR VALUE>
 #subnet_az1_cidr: <REPLACE WITH VALID CIDR VALUE>
 #subnet_az2_cidr: <REPLACE WITH VALID CIDR VALUE>
 #subnet_az3_cdir:  <REPLACE WITH VALID CIDR VALUE>
-
-# Custom VPC configuration. When selecting aws_create_vpc 'false', an existing VPC id must be provided and at least 1 subnet ID.
-#aws_vpc_id: <REPLACE WITH VALID VPC ID>
-#aws_subnet_az1_id: <REPLACE WITH VALID SUBNET ID>
-#aws_subnet_az2_id: <REPLACE WITH VALID SUBNET ID>
-#aws_subnet_az3_id: <REPLACE WITH VALID SUBNET ID>
 
 # use the "-e" option to set "aws_key_name"
 #aws_key_name: my-ssh-region-key
@@ -155,14 +148,18 @@ rhsm_repos:
   - "rhel-7-fast-datapath-rpms"
   - "rhel-7-server-ansible-2.4-rpms"
 
-# Keep this to use Red Hat Satellite:
-rhsm_server_hostname: 'sat-6.example.com'
-rhsm_org_id: 'CASL_ORG'
-rhsm_activationkey: 'casl-latest'
+# Uncomment the following to use Red Hat Satellite:
+#rhsm_server_hostname: 'sat-6.example.com'
+#rhsm_org_id: 'CASL_ORG'
+#rhsm_activationkey: 'casl-latest'
 
-# Uncomment the following to use RHSM username, password and optionally pool:
-#rhsm_username: ''
-#rhsm_password: ''
+# Use RHSM username, password and optionally pool:
+# NOTE: use the -e option to specify on CLI instead of statically set here
+#rhsm_username: '<REPLACE WITH VALID RHSM USERNAME>'
+#rhsm_password: '<REPLACE WITH VALID RHSM PASSWORD>'
+# Get RHSM required values from system variables
+#rhsm_username: "{{ lookup('env','RHN_USER') }}"
+#rhsm_password: "{{ lookup('env','RHN_PASSWD') }}"
 # leave commented out if you want to `--auto-attach` a pool
 #rhsm_pool: ''
 
@@ -173,15 +170,6 @@ rhsm_activationkey: 'casl-latest'
 # Do NOTE that a reboot should most likely happen on initial install, so it's important
 # that this variable is commented out or set to `True` for initial runs.
 #update_cluster_hosts: False
-
-
-# Use RHSM username, password and optionally pool:
-# NOTE: use the -e option to specify on CLI instead of statically set here
-rhsm_username: '<REPLACE WITH VALID RHSM USERNAME>'
-rhsm_password: '<REPLACE WITH VALID RHSM PASSWORD>'
-# Get RHSM required values from system variables
-#rhsm_username: "{{ lookup('env','RHN_USER') }}"
-#rhsm_password: "{{ lookup('env','RHN_PASSWD') }}"
 
 # Uncomment the following `additional_list_of_packages_to_install` to list additional
 # packages/RPMs to install during install

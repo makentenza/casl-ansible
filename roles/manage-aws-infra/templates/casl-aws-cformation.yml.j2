@@ -383,7 +383,7 @@ Resources:
           Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
-            VolumeSize: "{{ docker_storage_volume_size }}"
+            VolumeSize: "{{ master_docker_volume_size }}"
 {% endfor %}
 {% for idx in range(0, aws_num_etcd | int) %}
 {% set zone = aws_etcd_zones[ (idx % aws_etcd_zones.__len__())] %}
@@ -423,7 +423,7 @@ Resources:
           Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
-            VolumeSize: "{{ docker_storage_volume_size }}"
+            VolumeSize: "{{ etcd_docker_volume_size }}"
 {% endfor %}
 {% for idx in range(0, aws_num_infra_nodes | int) %}
 {% set zone = aws_infranodes_zones[ (idx % aws_infranodes_zones.__len__())] %}
@@ -463,7 +463,7 @@ Resources:
           Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
-            VolumeSize: "{{ docker_storage_volume_size }}"
+            VolumeSize: "{{ infra_node_docker_volume_size }}"
 {% endfor %}
 {% for idx in range(0, aws_num_app_nodes | int) %}
 {% set zone = aws_appnodes_zones[ (idx % aws_appnodes_zones.__len__())] %}
@@ -502,7 +502,7 @@ Resources:
           Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
-            VolumeSize: "{{ docker_storage_volume_size }}"
+            VolumeSize: "{{ app_node_docker_volume_size }}"
 {% endfor %}
 {% for idx in range(0, aws_num_cns_nodes | int) %}
 {% set zone = aws_cnsnodes_zones[ (idx % aws_cnsnodes_zones.__len__())] %}
@@ -542,7 +542,7 @@ Resources:
           Ebs:
             VolumeType: "gp2"
             DeleteOnTermination: "true"
-            VolumeSize: "{{ docker_storage_volume_size }}"
+            VolumeSize: "{{ cns_node_docker_volume_size }}"
         - DeviceName: "{{ cns_node_glusterfs_volume }}"
           Ebs:
             VolumeType: "gp2"
@@ -653,7 +653,7 @@ Resources:
       VPCs:
         -
           VPCId: !Ref VPC
-          VPCRegion: "{{ aws_region }}"
+          VPCRegion: "{{ cloud_infrastructure.region }}"
   PrivateRecords:
     Type: AWS::Route53::RecordSetGroup
     DependsOn:

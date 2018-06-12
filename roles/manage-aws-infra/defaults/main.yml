@@ -4,6 +4,11 @@ default_root_volume_size: '50'
 default_docker_volume_size: '40'
 default_cns_volume_size: '200'
 
+# Default port for OpenShift API and Web Console
+openshift_master_api_port: 8443
+openshift_master_console_port: 8443
+
+
 ## Default infra skeleton variables
 default_cloud_infrastructure:
    masters:
@@ -50,6 +55,10 @@ default_root_volume: '/dev/sda1'
 ## Keeping the values here for future references
 #default_docker_volume: '/dev/xvdb'
 #default_cns_volume: '/dev/xvdg'
+
+## Default VPC creation boolean
+aws_create_vpc: true
+
 
 ## Default VPC Network values
 default_vpc_cidr: '10.20.0.0/16'
@@ -115,14 +124,22 @@ cns_node_root_volume: "{{ default_root_volume }}"
 #cns_node_glusterfs_volume: "{{ default_cns_volume }}"
 #docker_storage_block_device: "{{ default_docker_volume }}"
 
-## Feed volume device sizes for each instance from `cloud_infrastructure` list on the inventory
+## Feed root volume device sizes for each instance from `cloud_infrastructure` list on the inventory
 master_root_volume_size: "{{ cloud_infrastructure.masters.root_volume_size }}"
 etcd_root_volume_size: "{{ cloud_infrastructure.etcdnodes.root_volume_size  }}"
 infra_node_root_volume_size: "{{ cloud_infrastructure.infranodes.root_volume_size }}"
 app_node_root_volume_size: "{{ cloud_infrastructure.appnodes.root_volume_size }}"
 cns_node_root_volume_size: "{{ cloud_infrastructure.cnsnodes.root_volume_size }}"
+
+## Feed root volume device sizes for each instance from `cloud_infrastructure` list on the inventory
+master_docker_volume_size: "{{ cloud_infrastructure.masters.docker_volume_size }}"
+etcd_docker_volume_size: "{{ cloud_infrastructure.etcdnodes.docker_volume_size  }}"
+infra_node_docker_volume_size: "{{ cloud_infrastructure.infranodes.docker_volume_size }}"
+app_node_docker_volume_size: "{{ cloud_infrastructure.appnodes.docker_volume_size }}"
+cns_nodedocker_volume_size: "{{ cloud_infrastructure.cnsnodes.docker_volume_size }}"
+
+## Feed gluster volume device sizes for CNS instances from `cloud_infrastructure` list on the inventory
 cns_node_glusterfs_volume_size: "{{ cloud_infrastructure.cnsnodes.gluster_volume_size }}"
-docker_storage_volume_size: "{{ default_docker_volume_size }}"
 
 ## Feed VPC Network values from the inventory
 VPCCIDR: "{{ vpc_cidr | default(default_vpc_cidr) }}"

@@ -92,6 +92,4 @@ docker run -u `id -u` \
       redhatcop/installer-aws
 ```
 
-**TODO:** Using and existing VPC or maintaining the created VPC is not supported yet.
-  
-> **Note:** While deleting an AWS Cluster, the `delete_vpc` variable must be set to `true` in order to remove the VPC used with the cluster. Check role [README](../roles/manage-aws-infra/README.md) for further information.
+**TODO:** Using an existing VPC or maintaining the created VPC is not supported yet.

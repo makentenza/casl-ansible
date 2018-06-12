@@ -3,7 +3,7 @@
   cloudformation:
     stack_name: "{{ env_id }}"
     state: "{{ action }}"
-    region: "{{ aws_region }}"
+    region: "{{ cloud_infrastructure.region }}"
     template_body: "{{ lookup('template', 'casl-aws-cformation.yml.j2') }}"
     template_parameters:
       VPCCIDR: "{{ VPCCIDR }}"
