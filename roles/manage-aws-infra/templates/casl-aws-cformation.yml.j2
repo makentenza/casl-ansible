@@ -245,9 +245,9 @@ Resources:
         ToPort: '4789'
         CidrIp: 0.0.0.0/0
       SecurityGroupEgress:
-      - IpProtocol: tcp
-        FromPort: '0'
-        ToPort: '65535'
+      - IpProtocol: '-1'
+        FromPort: '-1'
+        ToPort: '-1'
         CidrIp: 0.0.0.0/0
       Tags:
       - Key: 'Name'
