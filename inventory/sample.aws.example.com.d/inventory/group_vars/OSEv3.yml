@@ -34,6 +34,9 @@ osm_use_cockpit: true
 osm_cockpit_plugins:
 - 'cockpit-kubernetes'
 
+# Enable the Multi-Tenant plugin
+os_sdn_network_plugin_name: 'redhat/openshift-ovs-multitenant'
+
 # OpenShift FQDNs, DNS, App domain specific configurations
 openshift_master_cluster_method: native
 openshift_master_default_subdomain: "apps.{{ env_id }}.{{ dns_domain }}"
