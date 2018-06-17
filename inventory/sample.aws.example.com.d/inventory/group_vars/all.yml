@@ -153,13 +153,14 @@ rhsm_repos:
 #rhsm_org_id: 'CASL_ORG'
 #rhsm_activationkey: 'casl-latest'
 
-# Use RHSM username, password and optionally pool:
+# Use RHSM username, password - and optionally pool:
 # NOTE: use the -e option to specify on CLI instead of statically set here
 #rhsm_username: '<REPLACE WITH VALID RHSM USERNAME>'
 #rhsm_password: '<REPLACE WITH VALID RHSM PASSWORD>'
-# Get RHSM required values from system variables
+# ... or, alternatively, get RHSM required values from system environment variables
 #rhsm_username: "{{ lookup('env','RHN_USER') }}"
 #rhsm_password: "{{ lookup('env','RHN_PASSWD') }}"
+
 # leave commented out if you want to `--auto-attach` a pool
 #rhsm_pool: ''
 
