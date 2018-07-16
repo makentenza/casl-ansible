@@ -1,3 +1,5 @@
 ---
+---
+- hosts: localhost
 
 - import_playbook: "{{ openshift_ansible_path | default('../../galaxy/openshift-ansible') }}/playbooks/deploy_cluster.yml"
